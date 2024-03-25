@@ -26,7 +26,11 @@ int handle_event(void *ctx, void *data, size_t data_sz)
 	tm = localtime(&t);
 	strftime(ts, sizeof(ts), "%H:%M:%S", tm);
 
-	printf("%-8s %-5s %-7d %-16s %s\n", ts, "EXEC", e->pid, e->comm, e->fname);
+	printf("%-8s %-5s %-7d %-16s %-32s ", ts, "EXEC", e->pid, e->comm, e->fname);
+    for (int i = e->path_len-1; i >= 0; i--) {
+        printf("%s/", e->path[i]);
+    }
+    printf("\n");
 
 	return 0;
 }

@@ -106,4 +106,20 @@ int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
     return 0;
 }
 
+
+SEC("tracepoint/syscalls/sys_enter_chdir")
+int tracepoint__syscalls__sys_enter_chdir(struct trace_event_raw_sys_enter* ctx)
+{
+    u64 id = bpf_get_current_pid_tgid();
+    u32 tgid = id >> 32;
+    u32 pid = id;
+
+    if (trace_allowed(tgid, pid)) {
+        // bpf_printk("CHDIR: pid=%d, filename=%s\n", pid, (const char*)ctx->args[1]);
+    }
+
+    return 0;
+}
+
+
 char LICENSE[] SEC("license") = "Dual BSD/GPL";

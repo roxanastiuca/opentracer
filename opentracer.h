@@ -5,7 +5,7 @@
 #define PATH_MAX_LEN 32
 
 #define TASK_COMM_LEN 16
-#define NAME_MAX 255
+#define NAME_MAX 32
 #define INVALID_UID ((uid_t)-1)
 
 struct args_t {

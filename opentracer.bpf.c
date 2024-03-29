@@ -104,61 +104,79 @@ int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
     event->flags = ap->flags;
     event->ret = ctx->ret;
 
-    if (event->ret > 0) {
-        // current->files->fdt->fd[fd]->f.path.dentry->d_iname
-        // current->files->fdt->fd[fd]->f.path.dentry->d_name.name
-        int fd;
-        struct task_struct* t;
-        struct files_struct* f;
-        struct fdtable* fdt;
-        struct file** fdd;
-        struct file* file;
+    if (event->ret > 0 && event->fname[0] != '/') {
         struct path path;
-        struct dentry* dentry;
-        struct dentry dtry;
-        struct qstr pathname;
 
-        fd = event->ret;
-        t = (struct task_struct*)bpf_get_current_task(); // current
+        {
+            // current->files->fdt->fd[fd]->f.path
+            int fd;
+            struct task_struct* t;
+            struct files_struct* f;
+            struct fdtable* fdt;
+            struct file** fdd;
+            struct file* file;
 
-        bpf_probe_read(&f, sizeof(f), (void*)&t->files); // current->files
-        bpf_probe_read(&fdt, sizeof(fdt), (void*)&f->fdt); // current->files->fdt
-        bpf_probe_read(&fdd, sizeof(fdd), (void*)&fdt->fd);
-        bpf_probe_read(&file, sizeof(file), (void*)&fdd[fd]);
-        bpf_probe_read(&path, sizeof(path), (const void*)&file->f_path);
+            fd = event->ret;
+            t = (struct task_struct*)bpf_get_current_task(); // current
 
-        dentry = path.dentry;
-
-        // Reconstruct path
-        event->path_len = 0;
-
-        bpf_probe_read(&dtry, sizeof(struct dentry), dentry);
-        bpf_probe_read_str(event->path[0], PATH_MAX_LEN, dtry.d_name.name);
-        (event->path_len)++;
-        for (int i = 1; i < PATH_MAX_COUNT; i++) {
-            if (dtry.d_parent != dentry) {
-                dentry = dtry.d_parent;
-                bpf_probe_read(&dtry, sizeof(struct dentry), dtry.d_parent);
-                bpf_probe_read_str(event->path[i], PATH_MAX_LEN, dtry.d_name.name);
-                (event->path_len)++;
-            } else {
-                break;
-            }
+            bpf_probe_read(&f, sizeof(f), (void*)&t->files); // current->files
+            bpf_probe_read(&fdt, sizeof(fdt), (void*)&f->fdt); // current->files->fdt
+            bpf_probe_read(&fdd, sizeof(fdd), (void*)&fdt->fd);
+            bpf_probe_read(&file, sizeof(file), (void*)&fdd[fd]);
+            bpf_probe_read(&path, sizeof(path), (const void*)&file->f_path);
         }
 
-        // for (int i = 0; i < PATH_MAX_COUNT; i++) {
-        //     bpf_probe_read(&dtry, sizeof(struct dentry), dentry);
-        //     bpf_probe_read_str(event->path[i], PATH_MAX_LEN, dtry.d_name.name);
-        //     if (dtry.d_parent && dtry.d_parent != dentry) {
-        //         dentry = dtry.d_parent;
-        //     } else {
-        //         event->path_len = i;
-        //         break;
-        //     }
-        // }
+        // path.dentry->d_name.name
+        struct vfsmount *curr_vfsmount_ptr = path.mnt;
+        struct dentry *curr_dentry_ptr = path.dentry;
+        
+        struct vfsmount curr_vfsmount;
+        bpf_probe_read(&curr_vfsmount, sizeof(struct vfsmount), curr_vfsmount_ptr);
 
-        // bpf_probe_read(&pathname, sizeof(pathname), (const void*)&dentry->d_name);
-        // bpf_probe_read_str((void*)event->path, sizeof(event->path), (const void*)pathname.name);
+        for (int i = 0; i < PATH_MAX_COUNT; i++) {
+            struct dentry curr_dentry;
+            bpf_probe_read(&curr_dentry, sizeof(struct dentry), curr_dentry_ptr);
+
+            if (curr_dentry_ptr == curr_vfsmount.mnt_root) {
+                struct mount *curr_mount_ptr =
+                    (struct mount *)(((u8 *)curr_vfsmount_ptr) -
+                        offsetof(struct mount, mnt));
+                // struct mount curr_mount;
+                // bpf_probe_read(&curr_mount, sizeof(struct mount), curr_mount_ptr);
+                
+                // struct dentry *mount_point_dentry_ptr = curr_mount.mnt_mountpoint;
+                struct dentry *mount_point_dentry_ptr;
+                bpf_probe_read(&mount_point_dentry_ptr, sizeof(struct dentry *),
+                                &curr_mount_ptr->mnt_mountpoint);
+
+                if (curr_dentry_ptr == mount_point_dentry_ptr) {
+                    break;
+                }
+
+                curr_dentry_ptr = mount_point_dentry_ptr;
+
+                // struct mount *parent_mount_ptr = curr_mount.mnt_parent;
+                struct mount *parent_mount_ptr;
+                bpf_probe_read(&parent_mount_ptr, sizeof(struct mount *),
+                                &curr_mount_ptr->mnt_parent);
+
+                struct vfsmount *parent_vfsmount_ptr =
+                    (struct vfsmount *)(((u8 *)parent_mount_ptr) -
+                                        offsetof(struct mount, mnt));
+                
+                if (curr_vfsmount_ptr == parent_vfsmount_ptr) {
+                    break;
+                }
+
+                curr_vfsmount_ptr = parent_vfsmount_ptr;
+                bpf_probe_read(&curr_vfsmount, sizeof(struct vfsmount), curr_vfsmount_ptr);
+            } else {
+                curr_dentry_ptr = curr_dentry.d_parent;
+
+                bpf_probe_read_str(event->path[i], PATH_MAX_LEN, curr_dentry.d_name.name);
+                (event->path_len)++;
+            }
+        }
     }
 
     bpf_get_stack(ctx, &stack, sizeof(stack), BPF_F_USER_STACK);
@@ -172,22 +190,3 @@ int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
 }
 
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
-
-
-
-// int kprobe__vfs_fstat(struct pt_regs *ctx, unsigned int fd)
-// {
-//     struct files_struct *files = NULL;
-//     struct fdtable *fdt = NULL;
-//     struct file *f = NULL;
-//     struct dentry *de = NULL;
-//     struct qstr dn = {};
-//     struct task_struct *curr = (struct task_struct *)bpf_get_current_task();
-//     bpf_probe_read(&files, sizeof(files), &curr->files);
-//     bpf_probe_read(&fdt, sizeof(fdt), &files->fdt);
-//     bpf_probe_read(&f, sizeof(f), &fdt[fd]);
-//     bpf_probe_read(&de, sizeof(de), &f->f_path.dentry);
-//     bpf_probe_read(&dn, sizeof(dn), &de->d_name);
-//     bpf_trace_printk("fstat fd=%d file=%s\\n", fd, dn.name);
-//     return 0;
-// }

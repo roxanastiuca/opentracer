@@ -1,0 +1,6 @@
+format*
+.fuse*
+help.txt
+*.o
+vmlinux.h
+opentracer

@@ -161,7 +161,18 @@ int tracepoint__syscalls__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
     event->uid = bpf_get_current_uid_gid();
     bpf_get_current_comm(&event->comm, sizeof(event->comm));
     bpf_probe_read_user_str(&event->fname, sizeof(event->fname), ap->fname);
-    event->ret = ctx->ret;
+
+    if (ctx->ret < 0) {
+        // error
+        event->ret = ctx->ret;
+    } else{
+        // success, set it to ppid
+        struct task_struct *task = (struct task_struct *)bpf_get_current_task();
+        struct task_struct *parent;
+
+        bpf_probe_read(&parent, sizeof(parent), &task->real_parent);
+        bpf_probe_read(&event->ret, sizeof(event->ret), &parent->pid);
+    }
 
     /* emit event */
     bpf_ringbuf_submit(event, 0);
@@ -275,6 +286,7 @@ int tracepoint__syscalls__sys_exit_fchdir(struct trace_event_raw_sys_exit* ctx)
     event->event_type = (char)EVENT_TYPE_FCHDIR;
     event->pid = bpf_get_current_pid_tgid() >> 32;
     event->uid = bpf_get_current_uid_gid();
+    event->dfd = ap->fd;
     bpf_get_current_comm(&event->comm, sizeof(event->comm));
     event->ret = ctx->ret;
 

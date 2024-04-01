@@ -1,6 +1,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 #include <bpf/bpf.h>
@@ -17,7 +18,15 @@ static void sig_handler(int)
 
 int handle_event(void *ctx, void *data, size_t data_sz)
 {
-	const struct event *e = data;
+	const struct event *e = (const struct event*) data;
+
+    if (strncmp(e->fname, "/dev/", 5) == 0) {
+        return 0;
+    }
+    if (strncmp(e->fname, "/proc/", 6) == 0) {
+        return 0;
+    }
+
 	struct tm *tm;
 	char ts[32];
 	time_t t;
@@ -26,7 +35,22 @@ int handle_event(void *ctx, void *data, size_t data_sz)
 	tm = localtime(&t);
 	strftime(ts, sizeof(ts), "%H:%M:%S", tm);
 
-	printf("%-8s %-5s %-7d %-16s %s\n", ts, "EXEC", e->pid, e->comm, e->fname);
+    switch (e->event_type) {
+        case EVENT_TYPE_OPEN:
+            printf("%-8s %-7s %-5d %-5d %-7d %-16s %s\n", ts, "OPEN", e->dfd, e->ret, e->pid, e->comm, e->fname);
+            break;
+        case EVENT_TYPE_CHDIR:
+            printf("%-8s %-7s %-5d %-5d %-7d %-16s %s\n", ts, "CHDIR", e->dfd, e->ret, e->pid, e->comm, e->fname);
+            break;
+        case EVENT_TYPE_EXECVE:
+            printf("%-8s %-7s %-5d %-5d %-7d %-16s %s\n", ts, "EXEC", e->dfd, e->ret, e->pid, e->comm, e->fname);
+            break;
+        case EVENT_TYPE_FCHDIR:
+            printf("%-8s %-7s %-5d %-5d %-7d %-16s %s\n", ts, "FCHDIR", e->dfd, e->ret, e->pid, e->comm, e->fname);
+            break;
+        default:
+            printf("Unknown event type\n");
+    }
 
 	return 0;
 }

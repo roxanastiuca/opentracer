@@ -1,0 +1,362 @@
+OK
+11:03:17 CHDIR   0     0     3030    bash             /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+11:03:20 EXEC    0     0     3363    vim              
+11:03:20 OPEN    -100  3     3363    vim              /etc/ld.so.cache
+11:03:20 OPEN    -100  3     3363    vim              /lib/aarch64-linux-gnu/libm.so.6
+11:03:20 OPEN    -100  3     3363    vim              /lib/aarch64-linux-gnu/libtinfo.so.6
+11:03:20 OPEN    -100  3     3363    vim              /lib/aarch64-linux-gnu/libselinux.so.1
+11:03:20 OPEN    -100  3     3363    vim              /lib/aarch64-linux-gnu/libsodium.so.23
+11:03:20 OPEN    -100  3     3363    vim              /lib/aarch64-linux-gnu/libacl.so.1
+11:03:20 OPEN    -100  3     3363    vim              /lib/aarch64-linux-gnu/libgpm.so.2
+11:03:21 OPEN    -100  3     3363    vim              /lib/aarch64-linux-gnu/libpython3.10.so.1.0
+11:03:21 OPEN    -100  3     3363    vim              /lib/aarch64-linux-gnu/libc.so.6
+11:03:21 OPEN    -100  3     3363    vim              /lib/aarch64-linux-gnu/libpcre2-8.so.0
+11:03:21 OPEN    -100  3     3363    vim              /lib/aarch64-linux-gnu/libexpat.so.1
+11:03:21 OPEN    -100  3     3363    vim              /lib/aarch64-linux-gnu/libz.so.1
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/locale-archive
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/locale/locale.alias
+11:03:21 OPEN    -100  -2    3363    vim              /usr/lib/locale/C.UTF-8/LC_IDENTIFICATION
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_IDENTIFICATION
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/aarch64-linux-gnu/gconv/gconv-modules.cache
+11:03:21 OPEN    -100  -2    3363    vim              /usr/lib/locale/C.UTF-8/LC_MEASUREMENT
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_MEASUREMENT
+11:03:21 OPEN    -100  -2    3363    vim              /usr/lib/locale/C.UTF-8/LC_TELEPHONE
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_TELEPHONE
+11:03:21 OPEN    -100  -2    3363    vim              /usr/lib/locale/C.UTF-8/LC_ADDRESS
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_ADDRESS
+11:03:21 OPEN    -100  -2    3363    vim              /usr/lib/locale/C.UTF-8/LC_NAME
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_NAME
+11:03:21 OPEN    -100  -2    3363    vim              /usr/lib/locale/C.UTF-8/LC_PAPER
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_PAPER
+11:03:21 OPEN    -100  -2    3363    vim              /usr/lib/locale/C.UTF-8/LC_MESSAGES
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_MESSAGES
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_MESSAGES/SYS_LC_MESSAGES
+11:03:21 OPEN    -100  -2    3363    vim              /usr/lib/locale/C.UTF-8/LC_MONETARY
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_MONETARY
+11:03:21 OPEN    -100  -2    3363    vim              /usr/lib/locale/C.UTF-8/LC_COLLATE
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_COLLATE
+11:03:21 OPEN    -100  -2    3363    vim              /usr/lib/locale/C.UTF-8/LC_TIME
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_TIME
+11:03:21 OPEN    -100  -2    3363    vim              /usr/lib/locale/C.UTF-8/LC_NUMERIC
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_NUMERIC
+11:03:21 OPEN    -100  -2    3363    vim              /usr/lib/locale/C.UTF-8/LC_CTYPE
+11:03:21 OPEN    -100  3     3363    vim              /usr/lib/locale/C.utf8/LC_CTYPE
+11:03:21 CHDIR   0     0     3363    vim              /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+11:03:21 CHDIR   0     0     3363    vim              /home/rstiuca.linux
+11:03:21 CHDIR   0     0     3363    vim              /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vim82/lang/C.UTF-8/LC_MESSAGES/vim.mo
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vim82/lang/C.utf8/LC_MESSAGES/vim.mo
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vim82/lang/C/LC_MESSAGES/vim.mo
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/locale-langpack/C.UTF-8/LC_MESSAGES/vim.mo
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/locale-langpack/C.utf8/LC_MESSAGES/vim.mo
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/locale-langpack/C/LC_MESSAGES/vim.mo
+11:03:21 OPEN    -100  3     3363    vim              /lib/terminfo/x/xterm-256color
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vimrc
+11:03:21 OPEN    -100  4     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  4     3363    vim              /usr/share/vim/vim82/debian.vim
+11:03:21 OPEN    -100  5     3363    vim              /etc/papersize
+11:03:21 OPEN    -100  5     3363    vim              /etc/papersize
+11:03:21 OPEN    -100  4     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/syntax
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  4     3363    vim              /usr/share/vim/vim82/syntax/syntax.vim
+11:03:21 OPEN    -100  5     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/syntax
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  5     3363    vim              /usr/share/vim/vim82/syntax/synload.vim
+11:03:21 OPEN    -100  6     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/syntax
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  6     3363    vim              /usr/share/vim/vim82/syntax/syncolor.vim
+11:03:21 OPEN    -100  7     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/colors/lists
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  7     3363    vim              /usr/share/vim/vim82/colors/lists/default.vim
+11:03:21 OPEN    -100  5     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  5     3363    vim              /usr/share/vim/vim82/filetype.vim
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/ftdetect/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/ftdetect/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/ftdetect/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/ftdetect/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vim82/ftdetect/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/after/ftdetect/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/after/ftdetect/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/after/ftdetect/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/after/ftdetect/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/syntax/python/
+11:03:21 OPEN    -100  5     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/syntax
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  5     3363    vim              /usr/share/vim/vim82/syntax/python.vim
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vim82/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/after/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/after/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/after/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/after/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/vimrc.local
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /home/rstiuca.linux
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vimrc
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/_vimrc
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     -2    3363    vim              /home/rstiuca.linux/.vim
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/vimrc
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /home/rstiuca.linux
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.exrc
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/defaults.vim
+11:03:21 OPEN    -100  4     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  4     3363    vim              /usr/share/vim/vim82/filetype.vim
+11:03:21 OPEN    -100  4     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  4     3363    vim              /usr/share/vim/vim82/ftplugin.vim
+11:03:21 OPEN    -100  4     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  4     3363    vim              /usr/share/vim/vim82/indent.vim
+11:03:21 OPEN    -100  4     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/syntax
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  4     3363    vim              /usr/share/vim/vim82/syntax/syntax.vim
+11:03:21 OPEN    -100  5     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/syntax
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  5     3363    vim              /usr/share/vim/vim82/syntax/nosyntax.vim
+11:03:21 OPEN    -100  5     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/syntax
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  5     3363    vim              /usr/share/vim/vim82/syntax/synload.vim
+11:03:21 OPEN    -100  6     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/syntax
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  6     3363    vim              /usr/share/vim/vim82/syntax/syncolor.vim
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/syntax/python/
+11:03:21 OPEN    -100  5     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/syntax
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  5     3363    vim              /usr/share/vim/vim82/syntax/python.vim
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vim82/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/after/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/after/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/after/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/after/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/pack/
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vim82/pack/dist/start/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/after/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/after/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/after/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/after/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/plugin/
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/rrhelper.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/rrhelper.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/vimballPlugin.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/vimballPlugin.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/tohtml.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/tohtml.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/getscriptPlugin.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/getscriptPlugin.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/logiPat.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/logiPat.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/zipPlugin.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/zipPlugin.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/tarPlugin.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/tarPlugin.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/netrwPlugin.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/netrwPlugin.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/manpager.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/manpager.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/spellfile.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/spellfile.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/matchparen.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/matchparen.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/gzip.vim/
+11:03:21 OPEN    -100  -20   3363    vim              /usr/share/vim/vim82/plugin/gzip.vim/
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/plugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/getscriptPlugin.vim
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/plugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/gzip.vim
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/plugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/logiPat.vim
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/plugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/manpager.vim
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/plugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/matchparen.vim
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/plugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/netrwPlugin.vim
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/plugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/rrhelper.vim
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/plugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/spellfile.vim
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/plugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/tarPlugin.vim
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/plugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/tohtml.vim
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/plugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/vimballPlugin.vim
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/plugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/plugin/zipPlugin.vim
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/pack/
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vim82/pack/dist/start/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/after/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/after/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/after/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/after/pack/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/after/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/after/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/after/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/after/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/after/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/after/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/after/plugin/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/after/plugin/
+11:03:21 OPEN    -100  3     3363    vim              /home/rstiuca.linux/.viminfo
+11:03:21 OPEN    -100  3     3363    vim              /etc/nsswitch.conf
+11:03:21 OPEN    -100  3     3363    vim              /etc/passwd
+11:03:21 OPEN    -100  3     3363    vim              hello.py
+11:03:21 OPEN    -100  -2    3363    vim              .hello.py.swp
+11:03:21 OPEN    -100  4     3363    vim              .hello.py.swp
+11:03:21 OPEN    -100  -2    3363    vim              .hello.py.swx
+11:03:21 OPEN    -100  5     3363    vim              .hello.py.swx
+11:03:21 OPEN    -100  4     3363    vim              .hello.py.swp
+11:03:21 OPEN    -100  3     3363    vim              hello.py
+11:03:21 OPEN    -100  3     3363    vim              /home/rstiuca.linux/.viminfo
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/ftplugin/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/ftplugin/python/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/ftplugin/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/ftplugin/python/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/ftplugin/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/ftplugin/python/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/ftplugin/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/ftplugin/python/
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/ftplugin
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/ftplugin/python.vim
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/ftplugin/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vim82/ftplugin/python/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/after/ftplugin/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/after/ftplugin/python/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/after/ftplugin/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/after/ftplugin/python/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/after/ftplugin/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/after/ftplugin/python/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/after/ftplugin/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/after/ftplugin/python/
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/indent
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/indent/python.vim
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/syntax/python/
+11:03:21 OPEN    -100  3     3363    vim              .
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 CHDIR   0     0     3363    vim              /usr/share/vim/vim82/syntax
+11:03:21 FCHDIR  0     0     3363    vim              
+11:03:21 OPEN    -100  3     3363    vim              /usr/share/vim/vim82/syntax/python.vim
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vim82/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /usr/share/vim/vimfiles/after/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /etc/vim/after/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /var/lib/vim/addons/after/syntax/python/
+11:03:21 OPEN    -100  -2    3363    vim              /home/rstiuca.linux/.vim/after/syntax/python/
+11:03:21 CHDIR   0     0     3363    vim              /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+11:03:23 OPEN    -100  3     3363    vim              /home/rstiuca.linux/.viminfo
+11:03:23 OPEN    -100  5     3363    vim              /home/rstiuca.linux/.viminfo.tmp

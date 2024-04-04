@@ -80,6 +80,8 @@ int handle_event_chdir(const struct event *e)
         return 0;
     }
 
+    // TODO: handle relative paths
+
     pid_to_cwd[e->pid] = std::string(e->fname);
     printf("CHDIR: %d -> %s\n", e->pid, e->fname);
 

@@ -4,3 +4,4 @@ help.txt
 *.o
 vmlinux.h
 opentracer
+settings.json

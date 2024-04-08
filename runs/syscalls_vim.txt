@@ -1,0 +1,598 @@
+OK
+13:59:43 CHDIR   0     0     7547    bash             /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf
+CHDIR: 7547 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf
+13:59:45 CHDIR   0     0     7547    bash             /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+CHDIR: 7547 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 EXEC    0     7547  9291    vim              
+EXECVE: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /etc/ld.so.cache
+OPEN: 9291 -> 3 -> /etc/ld.so.cache
+13:59:52 OPEN    -100  3     9291    vim              /lib/aarch64-linux-gnu/libm.so.6
+OPEN: 9291 -> 3 -> /lib/aarch64-linux-gnu/libm.so.6
+13:59:52 OPEN    -100  3     9291    vim              /lib/aarch64-linux-gnu/libtinfo.so.6
+OPEN: 9291 -> 3 -> /lib/aarch64-linux-gnu/libtinfo.so.6
+13:59:52 OPEN    -100  3     9291    vim              /lib/aarch64-linux-gnu/libselinux.so.1
+OPEN: 9291 -> 3 -> /lib/aarch64-linux-gnu/libselinux.so.1
+13:59:52 OPEN    -100  3     9291    vim              /lib/aarch64-linux-gnu/libsodium.so.23
+OPEN: 9291 -> 3 -> /lib/aarch64-linux-gnu/libsodium.so.23
+13:59:52 OPEN    -100  3     9291    vim              /lib/aarch64-linux-gnu/libacl.so.1
+OPEN: 9291 -> 3 -> /lib/aarch64-linux-gnu/libacl.so.1
+13:59:52 OPEN    -100  3     9291    vim              /lib/aarch64-linux-gnu/libgpm.so.2
+OPEN: 9291 -> 3 -> /lib/aarch64-linux-gnu/libgpm.so.2
+13:59:52 OPEN    -100  3     9291    vim              /lib/aarch64-linux-gnu/libpython3.10.so.1.0
+OPEN: 9291 -> 3 -> /lib/aarch64-linux-gnu/libpython3.10.so.1.0
+13:59:52 OPEN    -100  3     9291    vim              /lib/aarch64-linux-gnu/libc.so.6
+OPEN: 9291 -> 3 -> /lib/aarch64-linux-gnu/libc.so.6
+13:59:52 OPEN    -100  3     9291    vim              /lib/aarch64-linux-gnu/libpcre2-8.so.0
+OPEN: 9291 -> 3 -> /lib/aarch64-linux-gnu/libpcre2-8.so.0
+13:59:52 OPEN    -100  3     9291    vim              /lib/aarch64-linux-gnu/libexpat.so.1
+OPEN: 9291 -> 3 -> /lib/aarch64-linux-gnu/libexpat.so.1
+13:59:52 OPEN    -100  3     9291    vim              /lib/aarch64-linux-gnu/libz.so.1
+OPEN: 9291 -> 3 -> /lib/aarch64-linux-gnu/libz.so.1
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/locale-archive
+OPEN: 9291 -> 3 -> /usr/lib/locale/locale-archive
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/locale/locale.alias
+OPEN: 9291 -> 3 -> /usr/share/locale/locale.alias
+13:59:52 OPEN    -100  -2    9291    vim              /usr/lib/locale/C.UTF-8/LC_IDENTIFICATION
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_IDENTIFICATION
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_IDENTIFICATION
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/aarch64-linux-gnu/gconv/gconv-modules.cache
+OPEN: 9291 -> 3 -> /usr/lib/aarch64-linux-gnu/gconv/gconv-modules.cache
+13:59:52 OPEN    -100  -2    9291    vim              /usr/lib/locale/C.UTF-8/LC_MEASUREMENT
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_MEASUREMENT
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_MEASUREMENT
+13:59:52 OPEN    -100  -2    9291    vim              /usr/lib/locale/C.UTF-8/LC_TELEPHONE
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_TELEPHONE
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_TELEPHONE
+13:59:52 OPEN    -100  -2    9291    vim              /usr/lib/locale/C.UTF-8/LC_ADDRESS
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_ADDRESS
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_ADDRESS
+13:59:52 OPEN    -100  -2    9291    vim              /usr/lib/locale/C.UTF-8/LC_NAME
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_NAME
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_NAME
+13:59:52 OPEN    -100  -2    9291    vim              /usr/lib/locale/C.UTF-8/LC_PAPER
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_PAPER
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_PAPER
+13:59:52 OPEN    -100  -2    9291    vim              /usr/lib/locale/C.UTF-8/LC_MESSAGES
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_MESSAGES
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_MESSAGES
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_MESSAGES/SYS_LC_MESSAGES
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_MESSAGES/SYS_LC_MESSAGES
+13:59:52 OPEN    -100  -2    9291    vim              /usr/lib/locale/C.UTF-8/LC_MONETARY
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_MONETARY
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_MONETARY
+13:59:52 OPEN    -100  -2    9291    vim              /usr/lib/locale/C.UTF-8/LC_COLLATE
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_COLLATE
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_COLLATE
+13:59:52 OPEN    -100  -2    9291    vim              /usr/lib/locale/C.UTF-8/LC_TIME
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_TIME
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_TIME
+13:59:52 OPEN    -100  -2    9291    vim              /usr/lib/locale/C.UTF-8/LC_NUMERIC
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_NUMERIC
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_NUMERIC
+13:59:52 OPEN    -100  -2    9291    vim              /usr/lib/locale/C.UTF-8/LC_CTYPE
+13:59:52 OPEN    -100  3     9291    vim              /usr/lib/locale/C.utf8/LC_CTYPE
+OPEN: 9291 -> 3 -> /usr/lib/locale/C.utf8/LC_CTYPE
+13:59:52 CHDIR   0     0     9291    vim              /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+CHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /home/rstiuca.linux
+CHDIR: 9291 -> /home/rstiuca.linux
+13:59:52 CHDIR   0     0     9291    vim              /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+CHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vim82/lang/C.UTF-8/LC_MESSAGES/vim.mo
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vim82/lang/C.utf8/LC_MESSAGES/vim.mo
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vim82/lang/C/LC_MESSAGES/vim.mo
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/locale-langpack/C.UTF-8/LC_MESSAGES/vim.mo
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/locale-langpack/C.utf8/LC_MESSAGES/vim.mo
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/locale-langpack/C/LC_MESSAGES/vim.mo
+13:59:52 OPEN    -100  3     9291    vim              /lib/terminfo/x/xterm-256color
+OPEN: 9291 -> 3 -> /lib/terminfo/x/xterm-256color
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim
+CHDIR: 9291 -> /usr/share/vim
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vimrc
+OPEN: 9291 -> 3 -> /usr/share/vim/vimrc
+13:59:52 OPEN    -100  4     9291    vim              .
+OPEN: 9291 -> 4 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  4     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82
+CHDIR: 9291 -> /usr/share/vim/vim82
+13:59:52 FCHDIR  4     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  4     9291    vim              /usr/share/vim/vim82/debian.vim
+OPEN: 9291 -> 4 -> /usr/share/vim/vim82/debian.vim
+13:59:52 OPEN    -100  5     9291    vim              /etc/papersize
+OPEN: 9291 -> 5 -> /etc/papersize
+13:59:52 OPEN    -100  5     9291    vim              /etc/papersize
+OPEN: 9291 -> 5 -> /etc/papersize
+13:59:52 OPEN    -100  4     9291    vim              .
+OPEN: 9291 -> 4 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  4     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/syntax
+CHDIR: 9291 -> /usr/share/vim/vim82/syntax
+13:59:52 FCHDIR  4     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  4     9291    vim              /usr/share/vim/vim82/syntax/syntax.vim
+OPEN: 9291 -> 4 -> /usr/share/vim/vim82/syntax/syntax.vim
+13:59:52 OPEN    -100  5     9291    vim              .
+OPEN: 9291 -> 5 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  5     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/syntax
+CHDIR: 9291 -> /usr/share/vim/vim82/syntax
+13:59:52 FCHDIR  5     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  5     9291    vim              /usr/share/vim/vim82/syntax/synload.vim
+OPEN: 9291 -> 5 -> /usr/share/vim/vim82/syntax/synload.vim
+13:59:52 OPEN    -100  6     9291    vim              .
+OPEN: 9291 -> 6 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  6     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/syntax
+CHDIR: 9291 -> /usr/share/vim/vim82/syntax
+13:59:52 FCHDIR  6     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  6     9291    vim              /usr/share/vim/vim82/syntax/syncolor.vim
+OPEN: 9291 -> 6 -> /usr/share/vim/vim82/syntax/syncolor.vim
+13:59:52 OPEN    -100  7     9291    vim              .
+OPEN: 9291 -> 7 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  7     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/colors/lists
+CHDIR: 9291 -> /usr/share/vim/vim82/colors/lists
+13:59:52 FCHDIR  7     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  7     9291    vim              /usr/share/vim/vim82/colors/lists/default.vim
+OPEN: 9291 -> 7 -> /usr/share/vim/vim82/colors/lists/default.vim
+13:59:52 OPEN    -100  5     9291    vim              .
+OPEN: 9291 -> 5 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  5     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82
+CHDIR: 9291 -> /usr/share/vim/vim82
+13:59:52 FCHDIR  5     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  5     9291    vim              /usr/share/vim/vim82/filetype.vim
+OPEN: 9291 -> 5 -> /usr/share/vim/vim82/filetype.vim
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/ftdetect/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/ftdetect/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/ftdetect/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/ftdetect/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vim82/ftdetect/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/after/ftdetect/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/after/ftdetect/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/after/ftdetect/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/after/ftdetect/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/syntax/python/
+13:59:52 OPEN    -100  5     9291    vim              .
+OPEN: 9291 -> 5 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  5     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/syntax
+CHDIR: 9291 -> /usr/share/vim/vim82/syntax
+13:59:52 FCHDIR  5     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  5     9291    vim              /usr/share/vim/vim82/syntax/python.vim
+OPEN: 9291 -> 5 -> /usr/share/vim/vim82/syntax/python.vim
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vim82/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/after/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/after/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/after/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/after/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/vimrc.local
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /home/rstiuca.linux
+CHDIR: 9291 -> /home/rstiuca.linux
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vimrc
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/_vimrc
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     -2    9291    vim              /home/rstiuca.linux/.vim
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/vimrc
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /home/rstiuca.linux
+CHDIR: 9291 -> /home/rstiuca.linux
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.exrc
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82
+CHDIR: 9291 -> /usr/share/vim/vim82
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/defaults.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/defaults.vim
+13:59:52 OPEN    -100  4     9291    vim              .
+OPEN: 9291 -> 4 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  4     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82
+CHDIR: 9291 -> /usr/share/vim/vim82
+13:59:52 FCHDIR  4     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  4     9291    vim              /usr/share/vim/vim82/filetype.vim
+OPEN: 9291 -> 4 -> /usr/share/vim/vim82/filetype.vim
+13:59:52 OPEN    -100  4     9291    vim              .
+OPEN: 9291 -> 4 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  4     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82
+CHDIR: 9291 -> /usr/share/vim/vim82
+13:59:52 FCHDIR  4     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  4     9291    vim              /usr/share/vim/vim82/ftplugin.vim
+OPEN: 9291 -> 4 -> /usr/share/vim/vim82/ftplugin.vim
+13:59:52 OPEN    -100  4     9291    vim              .
+OPEN: 9291 -> 4 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  4     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82
+CHDIR: 9291 -> /usr/share/vim/vim82
+13:59:52 FCHDIR  4     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  4     9291    vim              /usr/share/vim/vim82/indent.vim
+OPEN: 9291 -> 4 -> /usr/share/vim/vim82/indent.vim
+13:59:52 OPEN    -100  4     9291    vim              .
+OPEN: 9291 -> 4 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  4     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/syntax
+CHDIR: 9291 -> /usr/share/vim/vim82/syntax
+13:59:52 FCHDIR  4     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  4     9291    vim              /usr/share/vim/vim82/syntax/syntax.vim
+OPEN: 9291 -> 4 -> /usr/share/vim/vim82/syntax/syntax.vim
+13:59:52 OPEN    -100  5     9291    vim              .
+OPEN: 9291 -> 5 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  5     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/syntax
+CHDIR: 9291 -> /usr/share/vim/vim82/syntax
+13:59:52 FCHDIR  5     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  5     9291    vim              /usr/share/vim/vim82/syntax/nosyntax.vim
+OPEN: 9291 -> 5 -> /usr/share/vim/vim82/syntax/nosyntax.vim
+13:59:52 OPEN    -100  5     9291    vim              .
+OPEN: 9291 -> 5 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  5     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/syntax
+CHDIR: 9291 -> /usr/share/vim/vim82/syntax
+13:59:52 FCHDIR  5     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  5     9291    vim              /usr/share/vim/vim82/syntax/synload.vim
+OPEN: 9291 -> 5 -> /usr/share/vim/vim82/syntax/synload.vim
+13:59:52 OPEN    -100  6     9291    vim              .
+OPEN: 9291 -> 6 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  6     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/syntax
+CHDIR: 9291 -> /usr/share/vim/vim82/syntax
+13:59:52 FCHDIR  6     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  6     9291    vim              /usr/share/vim/vim82/syntax/syncolor.vim
+OPEN: 9291 -> 6 -> /usr/share/vim/vim82/syntax/syncolor.vim
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/syntax/python/
+13:59:52 OPEN    -100  5     9291    vim              .
+OPEN: 9291 -> 5 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  5     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/syntax
+CHDIR: 9291 -> /usr/share/vim/vim82/syntax
+13:59:52 FCHDIR  5     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  5     9291    vim              /usr/share/vim/vim82/syntax/python.vim
+OPEN: 9291 -> 5 -> /usr/share/vim/vim82/syntax/python.vim
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vim82/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/after/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/after/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/after/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/after/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/pack/
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/pack/
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vim82/pack/dist/start/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/after/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/after/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/after/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/after/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/plugin/
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/rrhelper.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/rrhelper.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/vimballPlugin.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/vimballPlugin.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/tohtml.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/tohtml.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/getscriptPlugin.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/getscriptPlugin.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/logiPat.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/logiPat.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/zipPlugin.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/zipPlugin.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/tarPlugin.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/tarPlugin.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/netrwPlugin.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/netrwPlugin.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/manpager.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/manpager.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/spellfile.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/spellfile.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/matchparen.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/matchparen.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/gzip.vim/
+13:59:52 OPEN    -100  -20   9291    vim              /usr/share/vim/vim82/plugin/gzip.vim/
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/plugin
+CHDIR: 9291 -> /usr/share/vim/vim82/plugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/getscriptPlugin.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/getscriptPlugin.vim
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/plugin
+CHDIR: 9291 -> /usr/share/vim/vim82/plugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/gzip.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/gzip.vim
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/plugin
+CHDIR: 9291 -> /usr/share/vim/vim82/plugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/logiPat.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/logiPat.vim
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/plugin
+CHDIR: 9291 -> /usr/share/vim/vim82/plugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/manpager.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/manpager.vim
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/plugin
+CHDIR: 9291 -> /usr/share/vim/vim82/plugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/matchparen.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/matchparen.vim
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/plugin
+CHDIR: 9291 -> /usr/share/vim/vim82/plugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/netrwPlugin.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/netrwPlugin.vim
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/plugin
+CHDIR: 9291 -> /usr/share/vim/vim82/plugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/rrhelper.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/rrhelper.vim
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/plugin
+CHDIR: 9291 -> /usr/share/vim/vim82/plugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/spellfile.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/spellfile.vim
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/plugin
+CHDIR: 9291 -> /usr/share/vim/vim82/plugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/tarPlugin.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/tarPlugin.vim
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/plugin
+CHDIR: 9291 -> /usr/share/vim/vim82/plugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/tohtml.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/tohtml.vim
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/plugin
+CHDIR: 9291 -> /usr/share/vim/vim82/plugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/vimballPlugin.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/vimballPlugin.vim
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/plugin
+CHDIR: 9291 -> /usr/share/vim/vim82/plugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/plugin/zipPlugin.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/plugin/zipPlugin.vim
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/pack/
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/pack/
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vim82/pack/dist/start/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/after/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/after/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/after/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/after/pack/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/after/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/after/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/after/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/after/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/after/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/after/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/after/plugin/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/after/plugin/
+13:59:52 OPEN    -100  3     9291    vim              /home/rstiuca.linux/.viminfo
+OPEN: 9291 -> 3 -> /home/rstiuca.linux/.viminfo
+13:59:52 OPEN    -100  3     9291    vim              /etc/nsswitch.conf
+OPEN: 9291 -> 3 -> /etc/nsswitch.conf
+13:59:52 OPEN    -100  3     9291    vim              /etc/passwd
+OPEN: 9291 -> 3 -> /etc/passwd
+13:59:52 OPEN    -100  3     9291    vim              hello.py
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2/hello.py
+13:59:52 OPEN    -100  -2    9291    vim              .hello.py.swp
+13:59:52 OPEN    -100  4     9291    vim              .hello.py.swp
+OPEN: 9291 -> 4 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2/.hello.py.swp
+13:59:52 OPEN    -100  -2    9291    vim              .hello.py.swx
+13:59:52 OPEN    -100  5     9291    vim              .hello.py.swx
+OPEN: 9291 -> 5 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2/.hello.py.swx
+13:59:52 OPEN    -100  4     9291    vim              .hello.py.swp
+OPEN: 9291 -> 4 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2/.hello.py.swp
+13:59:52 OPEN    -100  3     9291    vim              hello.py
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2/hello.py
+13:59:52 OPEN    -100  3     9291    vim              /home/rstiuca.linux/.viminfo
+OPEN: 9291 -> 3 -> /home/rstiuca.linux/.viminfo
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/ftplugin/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/ftplugin/python/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/ftplugin/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/ftplugin/python/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/ftplugin/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/ftplugin/python/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/ftplugin/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/ftplugin/python/
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/ftplugin
+CHDIR: 9291 -> /usr/share/vim/vim82/ftplugin
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/ftplugin/python.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/ftplugin/python.vim
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/ftplugin/
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/ftplugin/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vim82/ftplugin/python/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/after/ftplugin/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/after/ftplugin/python/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/after/ftplugin/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/after/ftplugin/python/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/after/ftplugin/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/after/ftplugin/python/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/after/ftplugin/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/after/ftplugin/python/
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/indent
+CHDIR: 9291 -> /usr/share/vim/vim82/indent
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/indent/python.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/indent/python.vim
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/syntax/python/
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/syntax
+CHDIR: 9291 -> /usr/share/vim/vim82/syntax
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/syntax/python.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/syntax/python.vim
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vim82/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /usr/share/vim/vimfiles/after/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /etc/vim/after/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /var/lib/vim/addons/after/syntax/python/
+13:59:52 OPEN    -100  -2    9291    vim              /home/rstiuca.linux/.vim/after/syntax/python/
+13:59:52 CHDIR   0     0     9291    vim              /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+CHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              .
+OPEN: 9291 -> 3 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 CHDIR   0     0     9291    vim              /usr/share/vim/vim82/syntax
+CHDIR: 9291 -> /usr/share/vim/vim82/syntax
+13:59:52 FCHDIR  3     0     9291    vim              
+FCHDIR: 9291 -> /Users/rstiuca/Desktop/uni/thesis/ebpf/learning-ebpf/chapter2
+13:59:52 OPEN    -100  3     9291    vim              /usr/share/vim/vim82/syntax/syncolor.vim
+OPEN: 9291 -> 3 -> /usr/share/vim/vim82/syntax/syncolor.vim
+13:59:54 OPEN    -100  3     9291    vim              /home/rstiuca.linux/.viminfo
+OPEN: 9291 -> 3 -> /home/rstiuca.linux/.viminfo
+13:59:54 OPEN    -100  5     9291    vim              /home/rstiuca.linux/.viminfo.tmp
+OPEN: 9291 -> 5 -> /home/rstiuca.linux/.viminfo.tmp

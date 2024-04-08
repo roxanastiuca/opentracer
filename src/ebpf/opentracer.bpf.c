@@ -2,7 +2,9 @@
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
 #include "opentracer.h"
+#include "../common/tracer_events.h"
 
 
 const volatile pid_t targ_pid = 0;

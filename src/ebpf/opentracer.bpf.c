@@ -99,14 +99,13 @@ int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
     event->ret = ctx->ret;
     event->dfd = ap->dfd;
 
+    // /* Unused: */
     // bpf_get_stack(ctx, &stack, sizeof(stack), BPF_F_USER_STACK);
     // event->callers[0] = stack[1];
     // event->callers[1] = stack[2];
 
     /* emit event */
     bpf_ringbuf_submit(event, 0);
-
-    // bpf_printk("Openat - event submitted\n");
 
     return 0;
 }
@@ -144,16 +143,18 @@ int tracepoint__syscalls__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
     struct execve_args *ap;
     u32 pid = bpf_get_current_pid_tgid();
 
+    if (ctx->ret < 0) {
+        return 0; /* failed syscall, don't record event */
+    }
+
     ap = bpf_map_lookup_elem(&execve_start, &pid);
     if (!ap) {
-        // bpf_printk("Execve - Exit for missed entry\n");
         return 0; /* missed entry */
     }
 
     event = bpf_ringbuf_reserve(&events, sizeof(*event), 0);
     if (!event) {
-        // bpf_printk("Execve - Exit for failed ringbuf reserve\n");
-        return 0; /* TODO: handle? */
+        return 0; /* allocation failed */
     }
 
     event->event_type = (char)EVENT_TYPE_EXECVE;
@@ -162,17 +163,11 @@ int tracepoint__syscalls__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
     bpf_get_current_comm(&event->comm, sizeof(event->comm));
     bpf_probe_read_user_str(&event->fname, sizeof(event->fname), ap->fname);
 
-    if (ctx->ret < 0) {
-        // error
-        event->ret = ctx->ret;
-    } else{
-        // success, set it to ppid
-        struct task_struct *task = (struct task_struct *)bpf_get_current_task();
-        struct task_struct *parent;
-
-        bpf_probe_read(&parent, sizeof(parent), &task->real_parent);
-        bpf_probe_read(&event->ret, sizeof(event->ret), &parent->pid);
-    }
+    /* execve doesn't have a return value, use field for ppid (pid_t == int) */
+    struct task_struct *task = (struct task_struct *)bpf_get_current_task();
+    struct task_struct *parent;
+    bpf_probe_read(&parent, sizeof(parent), &task->real_parent);
+    bpf_probe_read(&event->ret, sizeof(event->ret), &parent->pid);
 
     /* emit event */
     bpf_ringbuf_submit(event, 0);
@@ -214,16 +209,18 @@ int tracepoint__syscalls__sys_exit_chdir(struct trace_event_raw_sys_exit* ctx)
     struct chdir_args *ap;
     u32 pid = bpf_get_current_pid_tgid();
 
+    if (ctx->ret < 0) {
+        return 0; /* failed syscall, don't record event */
+    }
+
     ap = bpf_map_lookup_elem(&chdir_start, &pid);
     if (!ap) {
-        // bpf_printk("Chdir - Exit for missed entry\n");
         return 0; /* missed entry */
     }
 
     event = bpf_ringbuf_reserve(&events, sizeof(*event), 0);
     if (!event) {
-        // bpf_printk("Chdir - Exit for failed ringbuf reserve\n");
-        return 0; /* TODO: handle? */
+        return 0; /* allocation failed */
     }
 
     event->event_type = (char)EVENT_TYPE_CHDIR;
@@ -271,16 +268,18 @@ int tracepoint__syscalls__sys_exit_fchdir(struct trace_event_raw_sys_exit* ctx)
     struct fchdir_args *ap;
     u32 pid = bpf_get_current_pid_tgid();
 
+    if (ctx->ret < 0) {
+        return 0; /* failed syscall, don't record event */
+    }
+
     ap = bpf_map_lookup_elem(&fchdir_start, &pid);
     if (!ap) {
-        // bpf_printk("Fchdir - Exit for missed entry\n");
         return 0; /* missed entry */
     }
 
     event = bpf_ringbuf_reserve(&events, sizeof(*event), 0);
     if (!event) {
-        // bpf_printk("Fchdir - Exit for failed ringbuf reserve\n");
-        return 0; /* TODO: handle? */
+        return 0; /* allocation failed */
     }
 
     event->event_type = (char)EVENT_TYPE_FCHDIR;

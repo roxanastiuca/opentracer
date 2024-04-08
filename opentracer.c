@@ -67,7 +67,7 @@ int handle_event_open(const struct event *e)
     if (pid_to_fds_paths.find(e->pid) == pid_to_fds_paths.end()) {
         pid_to_fds_paths[e->pid] = std::vector<std::string>(100);
     }
-    pid_to_fds_paths[e->pid][e->ret] = abs_path;
+    pid_to_fds_paths[e->pid].insert(pid_to_fds_paths[e->pid].begin() + e->ret, abs_path);
 
     printf("OPEN: %d -> %d -> %s\n", e->pid, e->ret, abs_path.c_str());
 

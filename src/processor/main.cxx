@@ -11,10 +11,16 @@
 // C++ std
 #include <algorithm>
 #include <string>
-#include <vector>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "../common/tracer_events.h"
+
+struct processor {
+    std::unordered_map<int, std::string> pid_to_cwd;
+    std::unordered_map<int, std::vector<std::string>> pid_to_fds_paths;
+};
 
 
 static char timestamp_file_name[] = "last_processed_timestamp.txt";
@@ -111,27 +117,132 @@ int open_memory_mapped_file(std::string file_name, struct memory_mapped_file &mm
     return 0;
 }
 
+////////////// EVENT HANDLING ///////////////
+// Main logic to handle kernel events
 
-int handle_event(struct event *e)
+int handle_event_open(const struct event *e, struct processor &p)
+{
+    if (e->ret < 0) { // TODO: record failed opens too
+        return 0;
+    }
+
+    std::string abs_path;
+    std::string slash_fname = "/" + std::string(e->fname);
+    if (slash_fname == "/.") {
+        // Don't stack /. on the path
+        slash_fname = "";
+    }
+
+    if (e->fname[0] == '/') {
+        // Absolute path
+        abs_path = std::string(e->fname);
+    } else if (e->dfd == AT_FDCWD) {
+        // Relative path to CWD
+        if (p.pid_to_cwd.find(e->pid) != p.pid_to_cwd.end()) {
+            abs_path = p.pid_to_cwd[e->pid] + slash_fname;
+        } else {
+            abs_path = "?" + slash_fname;
+        }
+    } else {
+        // Relative path to dfd
+        if (p.pid_to_fds_paths.find(e->pid) != p.pid_to_fds_paths.end()) {
+            auto &fds_to_paths = p.pid_to_fds_paths[e->pid];
+            if (e->dfd < (int)fds_to_paths.size() && fds_to_paths[e->dfd] != "") {
+                abs_path = fds_to_paths[e->dfd] + slash_fname;
+            } else {
+                abs_path = "?" + slash_fname;
+            }
+        } else {
+            abs_path = "?" + slash_fname;
+        }
+    }
+
+    if (p.pid_to_fds_paths.find(e->pid) == p.pid_to_fds_paths.end()) {
+        p.pid_to_fds_paths[e->pid] = std::vector<std::string>(100);
+    }
+    p.pid_to_fds_paths[e->pid].insert(p.pid_to_fds_paths[e->pid].begin() + e->ret, abs_path);
+
+    printf("OPEN: %d -> %d -> %s\n", e->pid, e->ret, abs_path.c_str());
+
+    return 0;
+}
+
+
+int handle_event_chdir(const struct event *e, struct processor &p)
+{
+    if (e->ret < 0) {
+        return 0;
+    }    
+
+    // TODO: handle relative paths
+
+    p.pid_to_cwd[e->pid] = std::string(e->fname);
+    printf("CHDIR: %d -> %s\n", e->pid, e->fname);
+
+    return 0;
+}
+
+int handle_event_fchdir(const struct event *e, struct processor &p)
+{
+    if (e->ret < 0) {
+        return 0;
+    }
+
+    // If not found, set to "?"
+    p.pid_to_cwd[e->pid] = "?";
+
+    if (p.pid_to_fds_paths.find(e->pid) != p.pid_to_fds_paths.end()) {
+        auto &fds_to_paths = p.pid_to_fds_paths[e->pid];
+        if (e->dfd < (int)fds_to_paths.size() && fds_to_paths[e->dfd] != "") {
+            p.pid_to_cwd[e->pid] = fds_to_paths[e->dfd];
+        }
+    }
+
+    printf("FCHDIR: %d -> %s\n", e->pid, p.pid_to_cwd[e->pid].c_str());
+
+    return 0;
+}
+
+int handle_event_execve(const struct event *e, struct processor &p)
+{
+    // e->pid = PID of the new process
+    // e->ret = PID of the parent process (or <0 if error)
+    if (e->ret < 0) {
+        return 0;
+    }
+
+    if (p.pid_to_cwd.find(e->ret) != p.pid_to_cwd.end()) {
+        p.pid_to_cwd[e->pid] = p.pid_to_cwd[e->ret];
+    } else {
+        p.pid_to_cwd[e->pid] = "?";
+    }
+    
+    printf("EXECVE: %d -> %s\n", e->pid, p.pid_to_cwd[e->pid].c_str());
+
+    return 0;
+}
+
+int handle_event(struct event *e, struct processor &processor)
 {
     char type[10];
+    int err = 0;
 
     switch (e->event_type) {
         case EVENT_TYPE_OPEN:
             strcpy(type, "OPEN");
-            // return handle_event_open(e);
+            err = handle_event_open(e, processor);
             break;
         case EVENT_TYPE_CHDIR:
             strcpy(type, "CHDIR");
-            // return handle_event_chdir(e);
+            err = handle_event_chdir(e, processor);
             break;
         case EVENT_TYPE_FCHDIR:
             strcpy(type, "FCHDIR");
-            // return handle_event_fchdir(e);
+            err = handle_event_fchdir(e, processor);
             break;
         case EVENT_TYPE_EXECVE:
             strcpy(type, "EXECVE");
-            // return handle_event_execve(e);
+            err = handle_event_execve(e, processor);
             break;
         default:
             strcpy(type, "UNKNOWN");
@@ -144,11 +255,12 @@ int handle_event(struct event *e)
     printf("\t%-22s %-7s %-7d %-5d %-7d %-16s %s\n",
             ts, type, e->dfd, e->ret, e->pid, e->comm, e->fname);
 
-    return 0;
+    return err;
 }
 
 
-int process_file(const std::string &file_path)
+// Read kernel events from memory-mapped file:
+int process_file(const std::string &file_path, struct processor &processor)
 {
     struct memory_mapped_file mmf;
     if (open_memory_mapped_file(file_path, mmf) < 0) {
@@ -164,7 +276,7 @@ int process_file(const std::string &file_path)
     while (*(mmf.read_offset) + sizeof(struct event) < *(mmf.write_offset)) {
         e = (struct event *)((char *)mmf.data + *(mmf.read_offset));
         *(mmf.read_offset) += sizeof(struct event);
-        handle_event(e);
+        handle_event(e, processor);
     }
 
     munmap(mmf.addr, EVENTS_FILE_SIZE_LIMIT);
@@ -187,9 +299,12 @@ int main()
     std::vector<std::pair<time_t, std::string>> files;
     err = get_list_of_files(last_timestamp, files);
 
+    // Main structure for rolling back events:
+    struct processor processor;
+
     for (const auto &file : files) {
         printf("Processing file %s\n", file.second.c_str());
-        err = process_file(file.second);
+        err = process_file(file.second, processor);
     }
 
     if (!err) {

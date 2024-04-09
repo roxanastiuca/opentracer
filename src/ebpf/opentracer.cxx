@@ -20,17 +20,26 @@
 static volatile bool keep_running = true;
 static void sig_handler(int)
 {
+    printf("Shutting down\n");
     keep_running = false;
 }
 
 static volatile struct memory_mapped_file mmf = {0};
-static volatile int file_number = 0;
+static char file_name[256];
 
 int create_memory_mapped_file()
 {
-    char file_name[256];
-    snprintf(file_name, sizeof(file_name), "%s/events_%d",
-             EVENTS_SAVE_PATH, file_number);
+    struct tm *tm;
+    char ts[32];
+    time_t t;
+
+    time(&t);
+    tm = localtime(&t);
+    strftime(ts, sizeof(ts), "%y-%m-%d-%H-%M-%S", tm);
+
+    snprintf(file_name, sizeof(file_name), "%s/events_%s",
+             EVENTS_SAVE_PATH, ts);
+    
     int fd = open(file_name, O_CREAT | O_RDWR, 0644);
     if (fd < 0) {
         fprintf(stderr, "Failed to open file %s\n", file_name);
@@ -54,10 +63,34 @@ int create_memory_mapped_file()
     mmf.read_offset = (size_t*)addr;
     mmf.write_offset = (size_t*)((char*)addr + sizeof(size_t));
     mmf.data = (char*)addr + 2 * sizeof(size_t);
-    file_number++;
 
     return 0;
+}
 
+int close_memory_mapped_file()
+{
+    size_t size = *(mmf.write_offset) + 2 * sizeof(size_t);
+    munmap(mmf.addr, EVENTS_FILE_SIZE_LIMIT);
+
+    mmf.addr = NULL;
+    mmf.read_offset = NULL;
+    mmf.write_offset = NULL;
+    mmf.data = NULL;
+
+    int fd = open(file_name, O_RDWR);
+    if (fd < 0) {
+        fprintf(stderr, "Failed to open file %s\n", file_name);
+        return -1;
+    }
+
+    if (ftruncate(fd, size) < 0) {
+        fprintf(stderr, "Failed to reset file size %s\n", file_name);
+        return -1;
+    }
+
+    close(fd);
+
+    return 0;
 }
 
 int handle_event(void *ctx, void *data, size_t data_sz)
@@ -79,7 +112,16 @@ int handle_event(void *ctx, void *data, size_t data_sz)
         }
     }
 
-    memcpy((char*)mmf.data + *(mmf.write_offset), data, data_sz);
+    // Current timestamp:
+    time_t ts;
+    time(&ts);
+    printf("TS: %ld\n", ts);
+
+    // Overwrite ts in struct event with current timestamp:
+    // (without actually changing data, to avoid multiple memcpy-s)
+    memcpy((char*)mmf.data + *(mmf.write_offset), &ts, sizeof(time_t));
+    memcpy((char*)mmf.data + *(mmf.write_offset) + sizeof(time_t),
+           (char*)data + sizeof(time_t), data_sz - sizeof(time_t));
     *(mmf.write_offset) += data_sz;
 
     return 0;
@@ -148,8 +190,10 @@ int main()
 cleanup:
     if (rb != NULL)     ring_buffer__free(rb);
     if (obj != NULL)    opentracer_bpf__destroy(obj);
-    if (mmf.addr != NULL)
-        munmap(mmf.addr, EVENTS_FILE_SIZE_LIMIT);
-    
+    if (mmf.addr != NULL) {
+        // Truncate the file and unmap the memory.
+        close_memory_mapped_file();
+    }
+
     return err != 0;
 }

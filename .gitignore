@@ -5,3 +5,4 @@ help.txt
 vmlinux.h
 opentracer
 settings.json
+src/processor/main

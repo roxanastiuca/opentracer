@@ -16,7 +16,8 @@ enum event_type {
 };
 
 struct event {
-    // __u64 ts; // unused (TODO: use it for timestamping events)
+    long int ts; // timestamp when the event is consumed by the user process
+                 // (too expensive to get time in kernel space)
     char event_type;
     pid_t pid;
     uid_t uid;

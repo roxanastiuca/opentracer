@@ -1,11 +1,90 @@
+#include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
+#include <string.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
+// C++ std
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <utility>
+
 #include "../common/tracer_events.h"
+
+
+static char timestamp_file_name[] = "last_processed_timestamp.txt";
+
+int get_last_processed_timestamp(time_t &ts)
+{
+    FILE *fin = fopen(timestamp_file_name, "rt");
+    if (fin == NULL) {
+        fprintf(stderr, "Error opening file %s", timestamp_file_name);
+        return -1;
+    }
+
+    fscanf(fin, "%ld", &ts);
+    fclose(fin);
+    return 0;
+}
+
+int save_last_processed_timestamp(time_t ts)
+{
+    FILE *fout = fopen(timestamp_file_name, "wt");
+    if (fout == NULL) {
+        fprintf(stderr, "Error opening file %s", timestamp_file_name);
+        return -1;
+    }
+
+    fprintf(fout, "%ld", ts);
+    fclose(fout);
+    return 0;
+}
+
+int get_list_of_files(
+    time_t last_timestamp,
+    std::vector<std::pair<time_t, std::string>> &files)
+{
+    DIR *dir;
+    struct dirent *entry;
+    struct stat file_stat;
+
+    // Open events directory
+    dir = opendir(EVENTS_SAVE_PATH);
+    if (dir == NULL) {
+        fprintf(stderr, "Error opening directory %s", EVENTS_SAVE_PATH);
+        return -1;
+    }
+
+    // Iterate over all files in directory
+    while ((entry = readdir(dir)) != NULL) {
+        char file_path[NAME_MAX];
+        snprintf(file_path, NAME_MAX, "%s/%s", EVENTS_SAVE_PATH, entry->d_name);
+
+        // Check if entry is a regular file
+        if (stat(file_path, &file_stat) == 0 && S_ISREG(file_stat.st_mode)) {
+            time_t last_modified = file_stat.st_mtime;
+
+            if (last_modified > last_timestamp) {
+                files.push_back(std::make_pair(last_modified, std::string(file_path)));
+            } else {
+                printf("File was last modified before the last run of processor."
+                       " Skipping  %s\n", file_path);
+            }
+        }
+    }
+
+    closedir(dir);
+
+    // Sort files ascending on last modified timestamp
+    std::sort(files.begin(), files.end());
+
+    return 0;
+}
 
 
 int open_memory_mapped_file(std::string file_name, struct memory_mapped_file &mmf)
@@ -35,49 +114,49 @@ int open_memory_mapped_file(std::string file_name, struct memory_mapped_file &mm
 
 int handle_event(struct event *e)
 {
-    struct tm *tm;
-	char ts[32];
-	time_t t;
-
-	time(&t);
-	tm = localtime(&t);
-	strftime(ts, sizeof(ts), "%H:%M:%S", tm);
+    char type[10];
 
     switch (e->event_type) {
         case EVENT_TYPE_OPEN:
-            printf("%-8s %-7s %-5d %-5d %-7d %-16s %s\n", ts, "OPEN", e->dfd, e->ret, e->pid, e->comm, e->fname);
+            strcpy(type, "OPEN");
             // return handle_event_open(e);
             break;
         case EVENT_TYPE_CHDIR:
-            printf("%-8s %-7s %-5d %-5d %-7d %-16s %s\n", ts, "CHDIR", e->dfd, e->ret, e->pid, e->comm, e->fname);
+            strcpy(type, "CHDIR");
             // return handle_event_chdir(e);
             break;
         case EVENT_TYPE_FCHDIR:
-            printf("%-8s %-7s %-5d %-5d %-7d %-16s %s\n", ts, "FCHDIR", e->dfd, e->ret, e->pid, e->comm, e->fname);
+            strcpy(type, "FCHDIR");
             // return handle_event_fchdir(e);
             break;
         case EVENT_TYPE_EXECVE:
-            printf("%-8s %-7s %-5d %-5d %-7d %-16s %s\n", ts, "EXEC", e->dfd, e->ret, e->pid, e->comm, e->fname);
+            strcpy(type, "EXECVE");
             // return handle_event_execve(e);
             break;
         default:
-            printf("Unknown event type: %d\n", e->event_type);
+            strcpy(type, "UNKNOWN");
     }
+
+    struct tm *tm = localtime(&e->ts);
+    char ts[20];
+    strftime(ts, sizeof(ts), "%Y-%m-%d-%H:%M:%S", tm);
+
+    printf("\t%-22s %-7s %-7d %-5d %-7d %-16s %s\n",
+            ts, type, e->dfd, e->ret, e->pid, e->comm, e->fname);
 
     return 0;
 }
 
 
-int main()
+int process_file(const std::string &file_path)
 {
-    std::string file_name = "../../events_save_dir/events_0";
-
     struct memory_mapped_file mmf;
-    if (open_memory_mapped_file(file_name, mmf) < 0) {
+    if (open_memory_mapped_file(file_path, mmf) < 0) {
         fprintf(stderr, "Failed to open memory-mapped file\n");
         return -1;
     }
-    printf("Memory-mapped file opened, size: %ld\n", *(mmf.write_offset));
+    printf("Memory-mapped file opened, events count: %ld\n",
+           *(mmf.write_offset)/sizeof(struct event));
 
     // Read events from the memory-mapped file
     struct event *e;
@@ -89,5 +168,38 @@ int main()
     }
 
     munmap(mmf.addr, EVENTS_FILE_SIZE_LIMIT);
+
     return 0;
+}
+
+
+int main()
+{
+    time_t current_timestamp = time(NULL);
+    int err;
+
+    // Get last processed timestamp
+    time_t last_timestamp;
+    if (get_last_processed_timestamp(last_timestamp) < 0) {
+        return -1;
+    }
+
+    std::vector<std::pair<time_t, std::string>> files;
+    err = get_list_of_files(last_timestamp, files);
+
+    for (const auto &file : files) {
+        printf("Processing file %s\n", file.second.c_str());
+        err = process_file(file.second);
+    }
+
+    if (!err) {
+        // Save timestamp from when script started as last processed timestamp
+        if (save_last_processed_timestamp(current_timestamp) < 0) {
+            fprintf(stderr, "Error saving last processed timestamp %ld",
+                    current_timestamp);
+            return -1;
+        }
+    }
+
+    return err;
 }

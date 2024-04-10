@@ -11,6 +11,7 @@
 
 #include "opentracer.skel.h"
 #include "opentracer.h"
+#include "../common/config.h"
 #include "../common/tracer_events.h"
 
 // avoid including vmlinux.h, use hardcoded values
@@ -24,7 +25,8 @@ static void sig_handler(int)
     keep_running = false;
 }
 
-static volatile struct memory_mapped_file mmf = {0};
+static config_t config;
+static volatile memory_mapped_file_t mmf = {0};
 static char file_name[256];
 
 int create_memory_mapped_file()
@@ -38,7 +40,7 @@ int create_memory_mapped_file()
     strftime(ts, sizeof(ts), "%y-%m-%d-%H-%M-%S", tm);
 
     snprintf(file_name, sizeof(file_name), "%s/events_%s",
-             EVENTS_SAVE_PATH, ts);
+             config.events_save_path, ts);
     
     int fd = open(file_name, O_CREAT | O_RDWR, 0644);
     if (fd < 0) {
@@ -46,12 +48,12 @@ int create_memory_mapped_file()
         return -1;
     }
 
-    if (ftruncate(fd, EVENTS_FILE_SIZE_LIMIT) < 0) {
+    if (ftruncate(fd, config.events_file_size_limit) < 0) {
         fprintf(stderr, "Failed to set memory-mapped file size %s\n", file_name);
         return -1;
     }
 
-    void *addr = mmap(NULL, EVENTS_FILE_SIZE_LIMIT, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    void *addr = mmap(NULL, config.events_file_size_limit, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (addr == MAP_FAILED) {
         fprintf(stderr, "Failed to mmap file %s\n", file_name);
         return -1;
@@ -70,7 +72,7 @@ int create_memory_mapped_file()
 int close_memory_mapped_file()
 {
     size_t size = *(mmf.write_offset) + 2 * sizeof(size_t);
-    munmap(mmf.addr, EVENTS_FILE_SIZE_LIMIT);
+    munmap(mmf.addr, config.events_file_size_limit);
 
     mmf.addr = NULL;
     mmf.read_offset = NULL;
@@ -102,8 +104,8 @@ int handle_event(void *ctx, void *data, size_t data_sz)
         return -1;
     }
 
-    if ((*mmf.write_offset) + data_sz > EVENTS_FILE_SIZE_LIMIT) {
-        munmap(mmf.addr, EVENTS_FILE_SIZE_LIMIT);
+    if ((*mmf.write_offset) + data_sz > config.events_file_size_limit) {
+        munmap(mmf.addr, config.events_file_size_limit);
         /* Create a new file */
         if (create_memory_mapped_file() != 0) {
             fprintf(stderr, "Failed to create new memory-mapped file\n");
@@ -115,9 +117,8 @@ int handle_event(void *ctx, void *data, size_t data_sz)
     // Current timestamp:
     time_t ts;
     time(&ts);
-    printf("TS: %ld\n", ts);
 
-    // Overwrite ts in struct event with current timestamp:
+    // Overwrite ts in event_t with current timestamp:
     // (without actually changing data, to avoid multiple memcpy-s)
     memcpy((char*)mmf.data + *(mmf.write_offset), &ts, sizeof(time_t));
     memcpy((char*)mmf.data + *(mmf.write_offset) + sizeof(time_t),
@@ -129,8 +130,18 @@ int handle_event(void *ctx, void *data, size_t data_sz)
 
 
 
-int main()
+int main(int argc, char **argv)
 {
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <config_file>\n", argv[0]);
+        return 1;
+    }
+
+    if (load_config(&config, argv[1]) < 0) {
+        fprintf(stderr, "Failed to load config file %s\n", argv[1]);
+        return 1;
+    }
+
     LIBBPF_OPTS(bpf_object_open_opts, open_opts);
     struct opentracer_bpf *obj = NULL;
     int err;

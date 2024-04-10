@@ -4,5 +4,10 @@ help.txt
 *.o
 vmlinux.h
 opentracer
+main
 settings.json
 src/processor/main
+events_save_dir/
+runs/
+.vscode/
+config_*

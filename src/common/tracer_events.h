@@ -4,8 +4,6 @@
 #define TASK_COMM_LEN 16
 #define NAME_MAX 255
 
-#define EVENTS_FILE_SIZE_LIMIT 1024 * 1024 * 1024 // 1GB
-#define EVENTS_SAVE_PATH "../../events_save_dir"
 
 enum event_type {
     NO_EVENT = 0,
@@ -15,7 +13,7 @@ enum event_type {
     EVENT_TYPE_FCHDIR = 4,
 };
 
-struct event {
+typedef struct {
     long int ts; // timestamp when the event is consumed by the user process
                  // (too expensive to get time in kernel space)
     char event_type;
@@ -27,7 +25,7 @@ struct event {
     // __u64 callers[2]; // unused
     char comm[TASK_COMM_LEN];
     char fname[NAME_MAX];
-};
+} event_t;
 
 /**
  * Memory-mapped file structure:
@@ -35,11 +33,11 @@ struct event {
  * - next 8 bytes: write offset
  * - rest of the file: events
 */
-struct memory_mapped_file {
+typedef struct {
     void *addr;             /* start address of memory-mapped file */
     size_t *read_offset;    /* pointer to mapped memory of read offset */
     size_t *write_offset;   /* pointer to mapped memory of write offset */
     void *data;             /* start address of data (events) */
-};
+} memory_mapped_file_t;
 
 #endif /* __TRACER_EVENTS_H */

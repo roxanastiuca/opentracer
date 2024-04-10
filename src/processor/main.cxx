@@ -15,44 +15,17 @@
 #include <utility>
 #include <vector>
 
+#include "../common/config.h"
 #include "../common/tracer_events.h"
 
-struct processor {
+typedef struct {
     std::unordered_map<int, std::string> pid_to_cwd;
     std::unordered_map<int, std::vector<std::string>> pid_to_fds_paths;
-};
+} processor_t;
 
-
-static char timestamp_file_name[] = "last_processed_timestamp.txt";
-
-int get_last_processed_timestamp(time_t &ts)
-{
-    FILE *fin = fopen(timestamp_file_name, "rt");
-    if (fin == NULL) {
-        fprintf(stderr, "Error opening file %s", timestamp_file_name);
-        return -1;
-    }
-
-    fscanf(fin, "%ld", &ts);
-    fclose(fin);
-    return 0;
-}
-
-int save_last_processed_timestamp(time_t ts)
-{
-    FILE *fout = fopen(timestamp_file_name, "wt");
-    if (fout == NULL) {
-        fprintf(stderr, "Error opening file %s", timestamp_file_name);
-        return -1;
-    }
-
-    fprintf(fout, "%ld", ts);
-    fclose(fout);
-    return 0;
-}
 
 int get_list_of_files(
-    time_t last_timestamp,
+    config_t &config,
     std::vector<std::pair<time_t, std::string>> &files)
 {
     DIR *dir;
@@ -60,22 +33,22 @@ int get_list_of_files(
     struct stat file_stat;
 
     // Open events directory
-    dir = opendir(EVENTS_SAVE_PATH);
+    dir = opendir(config.events_save_path);
     if (dir == NULL) {
-        fprintf(stderr, "Error opening directory %s", EVENTS_SAVE_PATH);
+        fprintf(stderr, "Error opening directory %s", config.events_save_path);
         return -1;
     }
 
     // Iterate over all files in directory
     while ((entry = readdir(dir)) != NULL) {
         char file_path[NAME_MAX];
-        snprintf(file_path, NAME_MAX, "%s/%s", EVENTS_SAVE_PATH, entry->d_name);
+        snprintf(file_path, NAME_MAX, "%s/%s", config.events_save_path, entry->d_name);
 
         // Check if entry is a regular file
         if (stat(file_path, &file_stat) == 0 && S_ISREG(file_stat.st_mode)) {
             time_t last_modified = file_stat.st_mtime;
 
-            if (last_modified > last_timestamp) {
+            if (last_modified > config.last_processed_timestamp) {
                 files.push_back(std::make_pair(last_modified, std::string(file_path)));
             } else {
                 printf("File was last modified before the last run of processor."
@@ -93,7 +66,8 @@ int get_list_of_files(
 }
 
 
-int open_memory_mapped_file(std::string file_name, struct memory_mapped_file &mmf)
+int open_memory_mapped_file(
+    const config_t &config, std::string file_name, memory_mapped_file_t &mmf)
 {
     int fd = open(file_name.c_str(), O_RDWR);
     if (fd < 0) {
@@ -101,7 +75,7 @@ int open_memory_mapped_file(std::string file_name, struct memory_mapped_file &mm
         return -1;
     }
 
-    void *addr = mmap(NULL, EVENTS_FILE_SIZE_LIMIT, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    void *addr = mmap(NULL, config.events_file_size_limit, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (addr == MAP_FAILED) {
         fprintf(stderr, "Failed to mmap file %s\n", file_name.c_str());
         return -1;
@@ -120,7 +94,7 @@ int open_memory_mapped_file(std::string file_name, struct memory_mapped_file &mm
 ////////////// EVENT HANDLING ///////////////
 // Main logic to handle kernel events
 
-int handle_event_open(const struct event *e, struct processor &p)
+int handle_event_open(processor_t &p, const event_t *e)
 {
     if (e->ret < 0) { // TODO: record failed opens too
         return 0;
@@ -168,7 +142,7 @@ int handle_event_open(const struct event *e, struct processor &p)
 }
 
 
-int handle_event_chdir(const struct event *e, struct processor &p)
+int handle_event_chdir(processor_t &p, const event_t *e)
 {
     if (e->ret < 0) {
         return 0;
@@ -182,7 +156,7 @@ int handle_event_chdir(const struct event *e, struct processor &p)
     return 0;
 }
 
-int handle_event_fchdir(const struct event *e, struct processor &p)
+int handle_event_fchdir(processor_t &p, const event_t *e)
 {
     if (e->ret < 0) {
         return 0;
@@ -203,7 +177,7 @@ int handle_event_fchdir(const struct event *e, struct processor &p)
     return 0;
 }
 
-int handle_event_execve(const struct event *e, struct processor &p)
+int handle_event_execve(processor_t &p, const event_t *e)
 {
     // e->pid = PID of the new process
     // e->ret = PID of the parent process (or <0 if error)
@@ -222,7 +196,7 @@ int handle_event_execve(const struct event *e, struct processor &p)
     return 0;
 }
 
-int handle_event(struct event *e, struct processor &processor)
+int handle_event(processor_t &processor, event_t *e)
 {
     char type[10];
     int err = 0;
@@ -230,19 +204,19 @@ int handle_event(struct event *e, struct processor &processor)
     switch (e->event_type) {
         case EVENT_TYPE_OPEN:
             strcpy(type, "OPEN");
-            err = handle_event_open(e, processor);
+            err = handle_event_open(processor, e);
             break;
         case EVENT_TYPE_CHDIR:
             strcpy(type, "CHDIR");
-            err = handle_event_chdir(e, processor);
+            err = handle_event_chdir(processor, e);
             break;
         case EVENT_TYPE_FCHDIR:
             strcpy(type, "FCHDIR");
-            err = handle_event_fchdir(e, processor);
+            err = handle_event_fchdir(processor, e);
             break;
         case EVENT_TYPE_EXECVE:
             strcpy(type, "EXECVE");
-            err = handle_event_execve(e, processor);
+            err = handle_event_execve(processor, e);
             break;
         default:
             strcpy(type, "UNKNOWN");
@@ -260,58 +234,66 @@ int handle_event(struct event *e, struct processor &processor)
 
 
 // Read kernel events from memory-mapped file:
-int process_file(const std::string &file_path, struct processor &processor)
+int process_file(
+    const config_t &config, processor_t &processor, const std::string &file_path)
 {
-    struct memory_mapped_file mmf;
-    if (open_memory_mapped_file(file_path, mmf) < 0) {
+    memory_mapped_file_t mmf;
+    if (open_memory_mapped_file(config, file_path, mmf) < 0) {
         fprintf(stderr, "Failed to open memory-mapped file\n");
         return -1;
     }
     printf("Memory-mapped file opened, events count: %ld\n",
-           *(mmf.write_offset)/sizeof(struct event));
+           *(mmf.write_offset)/sizeof(event_t));
 
     // Read events from the memory-mapped file
-    struct event *e;
+    event_t *e;
 
-    while (*(mmf.read_offset) + sizeof(struct event) < *(mmf.write_offset)) {
-        e = (struct event *)((char *)mmf.data + *(mmf.read_offset));
-        *(mmf.read_offset) += sizeof(struct event);
-        handle_event(e, processor);
+    while (*(mmf.read_offset) + sizeof(event_t) < *(mmf.write_offset)) {
+        e = (event_t *)((char *)mmf.data + *(mmf.read_offset));
+        *(mmf.read_offset) += sizeof(event_t);
+        handle_event(processor, e);
     }
 
-    munmap(mmf.addr, EVENTS_FILE_SIZE_LIMIT);
+    munmap(mmf.addr, config.events_file_size_limit);
 
     return 0;
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
     time_t current_timestamp = time(NULL);
     int err;
 
-    // Get last processed timestamp
-    time_t last_timestamp;
-    if (get_last_processed_timestamp(last_timestamp) < 0) {
-        return -1;
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <config_file>\n", argv[0]);
+        return 1;
+    }
+
+    config_t config;
+    if (load_config(&config, argv[1]) < 0) {
+        fprintf(stderr, "Failed to load config file %s\n", argv[1]);
+        return 1;
     }
 
     std::vector<std::pair<time_t, std::string>> files;
-    err = get_list_of_files(last_timestamp, files);
+    err = get_list_of_files(config, files);
 
     // Main structure for rolling back events:
-    struct processor processor;
+    processor_t processor;
 
     for (const auto &file : files) {
         printf("Processing file %s\n", file.second.c_str());
-        err = process_file(file.second, processor);
+        err = process_file(config, processor, file.second);
     }
 
     if (!err) {
-        // Save timestamp from when script started as last processed timestamp
-        if (save_last_processed_timestamp(current_timestamp) < 0) {
-            fprintf(stderr, "Error saving last processed timestamp %ld",
-                    current_timestamp);
+        // Update config with new value for last processed timestamp
+        config.last_processed_timestamp = current_timestamp;
+        if (save_config(&config, argv[1]) < 0) {
+            fprintf(stderr,
+                    "Failed to save config file %s, last processed timestamp: %ld\n",
+                    argv[1], current_timestamp);
             return -1;
         }
     }

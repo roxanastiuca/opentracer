@@ -75,7 +75,7 @@ int tracepoint__syscalls__sys_enter_openat(struct trace_event_raw_sys_enter* ctx
 SEC("tracepoint/syscalls/sys_exit_openat")
 int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
 {
-    struct event *event;
+    event_t *event;
     struct open_args *ap;
     // uintptr_t stack[3];
     u32 pid = bpf_get_current_pid_tgid();
@@ -141,7 +141,7 @@ int tracepoint__syscalls__sys_enter_execve(struct trace_event_raw_sys_enter* ctx
 SEC("tracepoint/syscalls/sys_exit_execve")
 int tracepoint__syscalls__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
 {
-    struct event *event;
+    event_t *event;
     struct execve_args *ap;
     u32 pid = bpf_get_current_pid_tgid();
 
@@ -207,7 +207,7 @@ int tracepoint__syscalls__sys_enter_chdir(struct trace_event_raw_sys_enter* ctx)
 SEC("tracepoint/syscalls/sys_exit_chdir")
 int tracepoint__syscalls__sys_exit_chdir(struct trace_event_raw_sys_exit* ctx)
 {
-    struct event *event;
+    event_t *event;
     struct chdir_args *ap;
     u32 pid = bpf_get_current_pid_tgid();
 
@@ -266,7 +266,7 @@ int tracepoint__syscalls__sys_enter_fchdir(struct trace_event_raw_sys_enter* ctx
 SEC("tracepoint/syscalls/sys_exit_fchdir")
 int tracepoint__syscalls__sys_exit_fchdir(struct trace_event_raw_sys_exit* ctx)
 {
-    struct event *event;
+    event_t *event;
     struct fchdir_args *ap;
     u32 pid = bpf_get_current_pid_tgid();
 

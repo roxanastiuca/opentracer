@@ -10,6 +10,7 @@
 
 // C++ std
 #include <algorithm>
+#include <filesystem>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -18,9 +19,10 @@
 #include "../common/config.h"
 #include "../common/tracer_events.h"
 
+namespace fs = std::filesystem;
 typedef struct {
-    std::unordered_map<int, std::string> pid_to_cwd;
-    std::unordered_map<int, std::vector<std::string>> pid_to_fds_paths;
+    std::unordered_map<int, fs::path> pid_to_cwd;
+    std::unordered_map<int, std::vector<fs::path>> pid_to_fds_paths;
 } processor_t;
 
 
@@ -88,6 +90,8 @@ int open_memory_mapped_file(
     mmf.write_offset = (size_t *)((char *)addr + sizeof(size_t));
     mmf.data = (char *)addr + 2 * sizeof(size_t);
 
+    *(mmf.read_offset) = 0; // TODO: remove this line
+
     return 0;
 }
 
@@ -96,51 +100,47 @@ int open_memory_mapped_file(
 
 int handle_event_open(processor_t &p, const event_t *e)
 {
-    if (e->ret < 0) { // TODO: record failed opens too
-        return 0;
-    }
-
-    std::string abs_path;
-    std::string slash_fname = "/" + std::string(e->fname);
-    if (slash_fname == "/.") {
-        // Don't stack /. on the path
-        slash_fname = "";
-    }
+    fs::path abs_path;
 
     if (e->fname[0] == '/') {
         // Absolute path
-        abs_path = std::string(e->fname);
+        abs_path = fs::path(e->fname);
     } else if (e->dfd == AT_FDCWD) {
         // Relative path to CWD
         if (p.pid_to_cwd.find(e->pid) != p.pid_to_cwd.end()) {
-            abs_path = p.pid_to_cwd[e->pid] + slash_fname;
+            abs_path = (p.pid_to_cwd[e->pid] / fs::path(e->fname)).lexically_normal();
         } else {
-            abs_path = "?" + slash_fname;
+            abs_path = "UNK" / fs::path(e->fname);
         }
     } else {
         // Relative path to dfd
         if (p.pid_to_fds_paths.find(e->pid) != p.pid_to_fds_paths.end()) {
             auto &fds_to_paths = p.pid_to_fds_paths[e->pid];
             if (e->dfd < (int)fds_to_paths.size() && fds_to_paths[e->dfd] != "") {
-                abs_path = fds_to_paths[e->dfd] + slash_fname;
+                abs_path = (fds_to_paths[e->dfd] / fs::path(e->fname)).lexically_normal();
             } else {
-                abs_path = "?" + slash_fname;
+                abs_path = "UNK" / fs::path(e->fname);
             }
         } else {
-            abs_path = "?" + slash_fname;
+            abs_path = "UNK" / fs::path(e->fname);
         }
     }
 
-    if (p.pid_to_fds_paths.find(e->pid) == p.pid_to_fds_paths.end()) {
-        p.pid_to_fds_paths[e->pid] = std::vector<std::string>(100);
+    if (e->ret >= 0) {
+        if (p.pid_to_fds_paths.find(e->pid) == p.pid_to_fds_paths.end()) {
+            p.pid_to_fds_paths[e->pid] = std::vector<fs::path>(100);
+        }
+
+        if (e->ret >= (int)p.pid_to_fds_paths[e->pid].size()) {
+            p.pid_to_fds_paths[e->pid].resize(e->ret + 1);
+        }
+        p.pid_to_fds_paths[e->pid][e->ret] = abs_path;
     }
-    p.pid_to_fds_paths[e->pid].insert(p.pid_to_fds_paths[e->pid].begin() + e->ret, abs_path);
 
     printf("OPEN: %d -> %d -> %s\n", e->pid, e->ret, abs_path.c_str());
 
     return 0;
 }
-
 
 int handle_event_chdir(processor_t &p, const event_t *e)
 {
@@ -148,10 +148,19 @@ int handle_event_chdir(processor_t &p, const event_t *e)
         return 0;
     }    
 
-    // TODO: handle relative paths
+    if (e->fname[0] == '/') {
+        // Absolute path
+        p.pid_to_cwd[e->pid] = fs::path(e->fname);
+    } else {
+        // Relative path
+        if (p.pid_to_cwd.find(e->pid) != p.pid_to_cwd.end()) {
+            p.pid_to_cwd[e->pid] = (p.pid_to_cwd[e->pid] / fs::path(e->fname)).lexically_normal();
+        } else {
+            p.pid_to_cwd[e->pid] = fs::path(e->fname);
+        }
+    }
 
-    p.pid_to_cwd[e->pid] = std::string(e->fname);
-    printf("CHDIR: %d -> %s\n", e->pid, e->fname);
+    printf("CHDIR: %d -> %s\n", e->pid, p.pid_to_cwd[e->pid].c_str());
 
     return 0;
 }
@@ -162,8 +171,8 @@ int handle_event_fchdir(processor_t &p, const event_t *e)
         return 0;
     }
 
-    // If not found, set to "?"
-    p.pid_to_cwd[e->pid] = "?";
+    // If not found, set to "UNK"
+    p.pid_to_cwd[e->pid] = "UNK";
 
     if (p.pid_to_fds_paths.find(e->pid) != p.pid_to_fds_paths.end()) {
         auto &fds_to_paths = p.pid_to_fds_paths[e->pid];
@@ -188,7 +197,7 @@ int handle_event_execve(processor_t &p, const event_t *e)
     if (p.pid_to_cwd.find(e->ret) != p.pid_to_cwd.end()) {
         p.pid_to_cwd[e->pid] = p.pid_to_cwd[e->ret];
     } else {
-        p.pid_to_cwd[e->pid] = "?";
+        p.pid_to_cwd[e->pid] = "UNK";
     }
     
     printf("EXECVE: %d -> %s\n", e->pid, p.pid_to_cwd[e->pid].c_str());

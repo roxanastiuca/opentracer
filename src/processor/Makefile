@@ -3,16 +3,22 @@ TARGET = main
 all: $(TARGET)
 .PHONY: all
 
-$(TARGET): $(TARGET).o config.o
-	g++ -Wall -o $(TARGET) $(TARGET).o ../common/config.o
+$(TARGET): $(TARGET).o config.o processor.o mmf.o
+	g++ -Wall -o $(TARGET) $(TARGET).o config.o processor.o mmf.o
 
 $(TARGET).o: $(TARGET).cxx
 	g++ -Wall -o $(TARGET).o -c $(TARGET).cxx
 
 config.o: ../common/config.c
-	g++ -Wall -o ../common/config.o -c ../common/config.c
+	g++ -Wall -o config.o -c ../common/config.c
+
+processor.o: processor.cxx
+	g++ -Wall -o processor.o -c processor.cxx
+
+mmf.o: ../common/mmf.c
+	g++ -Wall -o mmf.o -c ../common/mmf.c
 
 clean:
 	- rm $(TARGET).o
-	- rm ../common/config.o
+	- rm config.o mmf.o processor.o
 	- rm $(TARGET)

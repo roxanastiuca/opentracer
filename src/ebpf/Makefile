@@ -4,7 +4,7 @@ BPF_TARGET = ${TARGET:=.bpf}
 BPF_C = ${BPF_TARGET:=.c}
 BPF_OBJ = ${BPF_TARGET:=.o}
 
-USER_C = ${TARGET:=.cxx} ../common/config.c
+USER_C = ${TARGET:=.cxx} ../common/config.c ../common/mmf.c
 USER_SKEL = ${TARGET:=.skel.h}
 
 COMMON_H = ${TARGET:=.h}

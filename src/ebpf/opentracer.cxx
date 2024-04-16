@@ -12,6 +12,7 @@
 #include "opentracer.skel.h"
 #include "opentracer.h"
 #include "../common/config.h"
+#include "../common/mmf.h"
 #include "../common/tracer_events.h"
 
 // avoid including vmlinux.h, use hardcoded values
@@ -26,74 +27,9 @@ static void sig_handler(int)
 }
 
 static config_t config;
-static volatile memory_mapped_file_t mmf = {0};
-static char file_name[256];
+static memory_mapped_file_t mmf = {0}; // TODO: volatile?
+static char file_name[MAX_FILE_NAME];
 
-int create_memory_mapped_file()
-{
-    struct tm *tm;
-    char ts[32];
-    time_t t;
-
-    time(&t);
-    tm = localtime(&t);
-    strftime(ts, sizeof(ts), "%y-%m-%d-%H-%M-%S", tm);
-
-    snprintf(file_name, sizeof(file_name), "%s/events_%s",
-             config.events_save_path, ts);
-    
-    int fd = open(file_name, O_CREAT | O_RDWR, 0644);
-    if (fd < 0) {
-        fprintf(stderr, "Failed to open file %s\n", file_name);
-        return -1;
-    }
-
-    if (ftruncate(fd, config.events_file_size_limit) < 0) {
-        fprintf(stderr, "Failed to set memory-mapped file size %s\n", file_name);
-        return -1;
-    }
-
-    void *addr = mmap(NULL, config.events_file_size_limit, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    if (addr == MAP_FAILED) {
-        fprintf(stderr, "Failed to mmap file %s\n", file_name);
-        return -1;
-    }
-
-    close(fd);
-
-    mmf.addr = addr;
-    mmf.read_offset = (size_t*)addr;
-    mmf.write_offset = (size_t*)((char*)addr + sizeof(size_t));
-    mmf.data = (char*)addr + 2 * sizeof(size_t);
-
-    return 0;
-}
-
-int close_memory_mapped_file()
-{
-    size_t size = *(mmf.write_offset) + 2 * sizeof(size_t);
-    munmap(mmf.addr, config.events_file_size_limit);
-
-    mmf.addr = NULL;
-    mmf.read_offset = NULL;
-    mmf.write_offset = NULL;
-    mmf.data = NULL;
-
-    int fd = open(file_name, O_RDWR);
-    if (fd < 0) {
-        fprintf(stderr, "Failed to open file %s\n", file_name);
-        return -1;
-    }
-
-    if (ftruncate(fd, size) < 0) {
-        fprintf(stderr, "Failed to reset file size %s\n", file_name);
-        return -1;
-    }
-
-    close(fd);
-
-    return 0;
-}
 
 int handle_event(void *ctx, void *data, size_t data_sz)
 {
@@ -107,7 +43,7 @@ int handle_event(void *ctx, void *data, size_t data_sz)
     if ((*mmf.write_offset) + data_sz > config.events_file_size_limit) {
         munmap(mmf.addr, config.events_file_size_limit);
         /* Create a new file */
-        if (create_memory_mapped_file() != 0) {
+        if (create_memory_mapped_file(&config, file_name, &mmf) != 0) {
             fprintf(stderr, "Failed to create new memory-mapped file\n");
             keep_running = false;
             return -1;
@@ -160,7 +96,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    err = create_memory_mapped_file();
+    err = create_memory_mapped_file(&config, file_name, &mmf);
     if (err) {
         fprintf(stderr, "Failed to create memory-mapped file\n");
         goto cleanup;
@@ -203,7 +139,7 @@ cleanup:
     if (obj != NULL)    opentracer_bpf__destroy(obj);
     if (mmf.addr != NULL) {
         // Truncate the file and unmap the memory.
-        close_memory_mapped_file();
+        close_memory_mapped_file(&config, file_name, &mmf);
     }
 
     return err != 0;

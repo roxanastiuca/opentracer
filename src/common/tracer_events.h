@@ -1,8 +1,10 @@
 #ifndef __TRACER_EVENTS_H
 #define __TRACER_EVENTS_H
 
+#include <limits.h>
+#include <sys/types.h>
+
 #define TASK_COMM_LEN 16
-#define NAME_MAX 255
 
 
 enum event_type {
@@ -26,18 +28,5 @@ typedef struct {
     char comm[TASK_COMM_LEN];
     char fname[NAME_MAX];
 } event_t;
-
-/**
- * Memory-mapped file structure:
- * - first 8 bytes: read offset
- * - next 8 bytes: write offset
- * - rest of the file: events
-*/
-typedef struct {
-    void *addr;             /* start address of memory-mapped file */
-    size_t *read_offset;    /* pointer to mapped memory of read offset */
-    size_t *write_offset;   /* pointer to mapped memory of write offset */
-    void *data;             /* start address of data (events) */
-} memory_mapped_file_t;
 
 #endif /* __TRACER_EVENTS_H */

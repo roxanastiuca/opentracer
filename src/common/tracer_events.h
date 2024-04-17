@@ -2,7 +2,6 @@
 #define __TRACER_EVENTS_H
 
 #include <limits.h>
-#include <sys/types.h>
 
 #define TASK_COMM_LEN 16
 

@@ -45,6 +45,8 @@ int load_config(config_t *config, const char *config_file_path)
                 fprintf(stderr, "Error: Invalid value for last_processed_timestamp: %s\n", value);
                 err = -1;
             }
+        } else if (strcmp(key, "mime_type_accepted") == 0) {
+            config->accepted_mime_types.insert(std::string(value));
         } else {
             fprintf(stderr, "Error: Unknown key in config file: %s\n", key);
             err = -1;
@@ -67,6 +69,10 @@ int save_config(config_t *config, const char *config_file_path)
     fprintf(fout, "events_save_path = %s\n", config->events_save_path);
     fprintf(fout, "events_file_size_limit = %lu\n", config->events_file_size_limit);
     fprintf(fout, "last_processed_timestamp = %lu\n", config->last_processed_timestamp);
+
+    for (const auto &mime_type : config->accepted_mime_types) {
+        fprintf(fout, "mime_type_accepted = %s\n", mime_type.c_str());
+    }
 
     fclose(fout);
     return 0;

@@ -4,12 +4,33 @@
 #include <sys/fcntl.h>
 #include <sys/mman.h>
 
+
 #include "../common/mmf.h"
 
 
 Processor::Processor(const config_t &config, FILE *output_file)
     : config(config), output_file(output_file)
-{}
+{
+    magic_cookie = magic_open(MAGIC_MIME_TYPE);
+    if (magic_cookie == NULL) {
+        fprintf(stderr, "Failed to initialize libmagic\n");
+        exit(1);
+    }
+
+    if (magic_load(magic_cookie, NULL) != 0) {
+        fprintf(stderr, "Failed to load magic database\n");
+        magic_close(magic_cookie);
+        exit(1);
+    }
+}
+
+Processor::~Processor()
+{
+    if (magic_cookie != NULL) {
+        magic_close(magic_cookie);
+    }
+    // output_file is closed in the main function
+}
 
 int Processor::process_file(const std::string &file_path)
 {
@@ -189,28 +210,64 @@ int Processor::process_event_execve(const event_t *e)
 
 int Processor::save_event_open(const event_t *e, const fs::path &path)
 {
-    // Filter
-
     // Skip /proc and /sys
     if (path.string().rfind("/proc", 0) == 0 || path.string().rfind("/sys", 0) == 0) {
         return 0;
     }
 
-    // Skip directories
-    auto type = fs::status(path).type();
-    if (type == fs::file_type::directory) {
+    fs::path link_path;
+    fs::file_type file_type = fs::status(path).type();
+    const char *mime_type = magic_file(magic_cookie, path.c_str());
+
+    if (file_type == fs::file_type::symlink
+            || (mime_type != NULL && strcmp(mime_type, "inode/symlink") == 0)) {
+        // Symbolic link
+        link_path = fs::read_symlink(path);
+        if (link_path.is_absolute()) {
+            link_path = link_path.lexically_normal();
+        } else {
+            link_path = (path.parent_path() / link_path).lexically_normal();
+        }
+
+        file_type = fs::status(link_path).type();
+        mime_type = magic_file(magic_cookie, link_path.c_str());
+        if (!is_accepted_file(link_path, file_type, mime_type)) {
+            return 0;
+        }
+    }
+
+    if (!is_accepted_file(path, file_type, mime_type)) {
         return 0;
     }
 
-    fs::path link_path;
-    if (type == fs::file_type::symlink) {
-        link_path = fs::read_symlink(path);
-    }
-
     // TODO: remove this, use a different storage option
-    fprintf(output_file, "%-12ld %-7d %-7d %-5d %-7d %-16s %s %s\n",
-            e->ts, e->pid, e->uid, e->ret, e->flags, e->comm, path.c_str(),
-            link_path.c_str());
+    fprintf(output_file, "%-12ld %-7d %-7d %-5d %-7d %-16s %-32s %s %s %d\n",
+            e->ts, e->pid, e->uid, e->ret, e->flags, e->comm,
+            ((int)file_type > 0 && mime_type != NULL) ? mime_type : "UNK",
+            path.c_str(),
+            link_path.c_str(),
+            (int)file_type);
 
     return 0;
+}
+
+bool Processor::is_accepted_file(
+    const fs::path &path, const fs::file_type &file_type, const char *mime_type)
+{
+    // Accept unknown file types and not found
+    if (file_type == fs::file_type::not_found || file_type == fs::file_type::unknown) {
+        return true;
+    }
+
+    // Exclude anything other than regular files or symbolic links
+    if (file_type != fs::file_type::regular && file_type != fs::file_type::symlink) {
+        return false;
+    }
+
+    // Accept if unknown mime type or none set in config
+    if (config.accepted_mime_types.empty() || mime_type == NULL) {
+        return true;
+    }
+
+    return config.accepted_mime_types.find(std::string(mime_type)) != config.accepted_mime_types.end();
 }

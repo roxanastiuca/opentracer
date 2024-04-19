@@ -269,5 +269,10 @@ bool Processor::is_accepted_file(
         return true;
     }
 
+    // Accept if mime type includes "executable" or "script"
+    if (strstr(mime_type, "executable") != NULL || strstr(mime_type, "script") != NULL) {
+        return true;
+    }
+
     return config.accepted_mime_types.find(std::string(mime_type)) != config.accepted_mime_types.end();
 }

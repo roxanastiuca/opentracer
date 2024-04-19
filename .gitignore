@@ -7,7 +7,8 @@ opentracer
 main
 settings.json
 src/processor/main
-events_save_dir/
+events_save_dir*
 runs/
 .vscode/
 config_*
+runs*

@@ -40,6 +40,8 @@ int Processor::process_file(const std::string &file_path)
         return -1;
     }
 
+    // *(mmf.read_offset) = 0; // TODO: remove
+
     // Read events from the memory-mapped file
     event_t *e;
 
@@ -236,12 +238,14 @@ int Processor::save_event_open(const event_t *e, const fs::path &path)
         }
     }
 
-    if (!is_accepted_file(path, file_type, mime_type)) {
-        return 0;
-    }
+    bool is_accepted = is_accepted_file(path, file_type, mime_type);
+    // if (!is_accepted_file(path, file_type, mime_type)) {
+    //     return 0;
+    // }
 
     // TODO: remove this, use a different storage option
-    fprintf(output_file, "%-12ld %-7d %-7d %-5d %-7d %-16s %-32s %s %s %d\n",
+    fprintf(output_file, "%-6s %-12ld %-7d %-7d %-5d %-7d %-16s %-32s %s %s %d\n",
+            is_accepted ? "KEEP" : "SKIP",
             e->ts, e->pid, e->uid, e->ret, e->flags, e->comm,
             ((int)file_type > 0 && mime_type != NULL) ? mime_type : "UNK",
             path.c_str(),
@@ -270,7 +274,8 @@ bool Processor::is_accepted_file(
     }
 
     // Accept if mime type includes "executable" or "script"
-    if (strstr(mime_type, "executable") != NULL || strstr(mime_type, "script") != NULL) {
+    if (strstr(mime_type, "executable") != NULL || strstr(mime_type, "script") != NULL
+            || strstr(mime_type, "application") != NULL) {
         return true;
     }
 

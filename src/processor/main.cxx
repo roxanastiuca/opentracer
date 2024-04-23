@@ -91,10 +91,10 @@ int main(int argc, char **argv)
     
     // TODO: remove this, use a different storage option
     char output_file_path[NAME_MAX];
-    sprintf(output_file_path, "../../runs/open_%ld.txt", current_timestamp);
-    FILE *output_file = fopen(output_file_path, "wt");
-    fprintf(output_file, "%-12s %-7s %-7s %-5s %-7s %-16s %-32s %s\n",
-            "TS", "PID", "UID", "RET", "FLAGS", "COMM", "MIME-TYPE", "FNAME");
+    sprintf(output_file_path, "../../runs_v3/opened/open_%ld.txt", current_timestamp);
+    FILE *output_file = fopen(output_file_path, "a");
+    fprintf(output_file, "%-6s %-12s %-7s %-7s %-5s %-7s %-16s %-32s %s\n",
+            "KEEP", "TS", "PID", "UID", "RET", "FLAGS", "COMM", "MIME-TYPE", "FNAME");
 
     Processor processor(config, output_file);
 

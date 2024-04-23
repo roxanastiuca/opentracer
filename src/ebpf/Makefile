@@ -4,7 +4,7 @@ BPF_TARGET = ${TARGET:=.bpf}
 BPF_C = ${BPF_TARGET:=.c}
 BPF_OBJ = ${BPF_TARGET:=.o}
 
-USER_C = ${TARGET:=.c}
+USER_C = ${TARGET:=.cxx} ../common/config.cxx ../common/mmf.c
 USER_SKEL = ${TARGET:=.skel.h}
 
 COMMON_H = ${TARGET:=.h}
@@ -15,7 +15,7 @@ all: $(TARGET) $(BPF_OBJ)
 $(TARGETS): %: %.bpf.o 
 
 $(TARGET): $(USER_C) $(USER_SKEL) $(COMMON_H)
-	g++ -Wall -o $(TARGET) $(USER_C) -L../libbpf/src -l:libbpf.a -lelf -lz
+	g++ -Wall -o $(TARGET) $(USER_C) -L../../../libbpf/src -l:libbpf.a -lelf -lz
 
 $(BPF_OBJ): %.o: $(BPF_C) vmlinux.h  $(COMMON_H)
 	clang \

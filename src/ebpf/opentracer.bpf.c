@@ -63,9 +63,9 @@ int tracepoint__syscalls__sys_enter_openat(struct trace_event_raw_sys_enter* ctx
 
     if (trace_allowed(tgid, pid)) {
         struct open_args args = {};
+        args.dfd = (int)ctx->args[0];
         args.fname = (const char *)ctx->args[1];
         args.flags = (int)ctx->args[2];
-        args.dfd = (int)ctx->args[0];
         bpf_map_update_elem(&open_start, &pid, &args, 0);
     }
 
@@ -98,10 +98,10 @@ int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
     bpf_get_current_comm(&event->comm, sizeof(event->comm));
     bpf_probe_read_user_str(&event->fname, sizeof(event->fname), ap->fname);
     event->flags = ap->flags;
-    event->ret = ctx->ret;
     event->dfd = ap->dfd;
+    bpf_probe_read(&event->ret, sizeof(event->ret), &ctx->ret);
 
-    // /* Unused: */
+    /* Unused: */
     // bpf_get_stack(ctx, &stack, sizeof(stack), BPF_F_USER_STACK);
     // event->callers[0] = stack[1];
     // event->callers[1] = stack[2];
@@ -145,7 +145,9 @@ int tracepoint__syscalls__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
     struct execve_args *ap;
     u32 pid = bpf_get_current_pid_tgid();
 
-    if (ctx->ret < 0) {
+    int ret;
+    bpf_probe_read(&ret, sizeof(ret), &ctx->ret);
+    if (ret < 0) {
         return 0; /* failed syscall, don't record event */
     }
 
@@ -197,7 +199,9 @@ int tracepoint__syscalls__sys_enter_chdir(struct trace_event_raw_sys_enter* ctx)
 
     if (trace_allowed(tgid, pid)) {
         struct chdir_args args = {};
-        args.path = (const char *)ctx->args[0];
+        const char* tmp;
+        bpf_probe_read(&tmp, sizeof(tmp), &ctx->args[0]);
+        args.path = tmp;
         bpf_map_update_elem(&chdir_start, &pid, &args, 0);
     }
 
@@ -211,7 +215,9 @@ int tracepoint__syscalls__sys_exit_chdir(struct trace_event_raw_sys_exit* ctx)
     struct chdir_args *ap;
     u32 pid = bpf_get_current_pid_tgid();
 
-    if (ctx->ret < 0) {
+    int ret;
+    bpf_probe_read(&ret, sizeof(ret), &ctx->ret);
+    if (ret < 0) {
         return 0; /* failed syscall, don't record event */
     }
 
@@ -230,7 +236,7 @@ int tracepoint__syscalls__sys_exit_chdir(struct trace_event_raw_sys_exit* ctx)
     event->uid = bpf_get_current_uid_gid();
     bpf_get_current_comm(&event->comm, sizeof(event->comm));
     bpf_probe_read_user_str(&event->fname, sizeof(event->fname), ap->path);
-    event->ret = ctx->ret;
+    event->ret = ret;
 
     /* emit event */
     bpf_ringbuf_submit(event, 0);
@@ -256,7 +262,9 @@ int tracepoint__syscalls__sys_enter_fchdir(struct trace_event_raw_sys_enter* ctx
 
     if (trace_allowed(tgid, pid)) {
         struct fchdir_args args = {};
-        args.fd = (int)ctx->args[0];
+        int tmp;
+        bpf_probe_read(&tmp, sizeof(tmp), &ctx->args[0]);
+        args.fd = tmp;
         bpf_map_update_elem(&fchdir_start, &pid, &args, 0);
     }
 
@@ -270,7 +278,9 @@ int tracepoint__syscalls__sys_exit_fchdir(struct trace_event_raw_sys_exit* ctx)
     struct fchdir_args *ap;
     u32 pid = bpf_get_current_pid_tgid();
 
-    if (ctx->ret < 0) {
+    int ret;
+    bpf_probe_read(&ret, sizeof(ret), &ctx->ret);
+    if (ret < 0) {
         return 0; /* failed syscall, don't record event */
     }
 
@@ -289,7 +299,7 @@ int tracepoint__syscalls__sys_exit_fchdir(struct trace_event_raw_sys_exit* ctx)
     event->uid = bpf_get_current_uid_gid();
     event->dfd = ap->fd;
     bpf_get_current_comm(&event->comm, sizeof(event->comm));
-    event->ret = ctx->ret;
+    event->ret = ret;
 
     /* emit event */
     bpf_ringbuf_submit(event, 0);

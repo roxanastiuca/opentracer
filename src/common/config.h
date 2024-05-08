@@ -3,17 +3,12 @@
 
 #include <time.h>
 
-// C++ headers
-#include <string>
-#include <unordered_set>
-
 #define MAX_LINE_LENGTH 255
 
 typedef struct {
     char events_save_path[255];                             // path to save events
     unsigned long events_file_size_limit;                   // max size of events file
     time_t last_processed_timestamp;                        // last processed timestamp
-    std::unordered_set<std::string> accepted_mime_types;    // accepted mime types
 } config_t;
 
 /**

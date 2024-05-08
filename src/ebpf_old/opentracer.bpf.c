@@ -3,12 +3,13 @@
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
 
+#include "opentracer.h"
 #include "../common/tracer_events.h"
 
 
 const volatile pid_t targ_pid = 0;
 const volatile pid_t targ_tgid = 0;
-const volatile uid_t targ_uid = 0; /* TODO: set to 0, left to 501 for testing */
+const volatile uid_t targ_uid = 501; /* TODO: set to 0, left to 501 for testing */
 
 struct {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
@@ -17,7 +18,7 @@ struct {
 
 
 static __always_inline bool valid_uid(uid_t uid) {
-    return uid != 0 && uid != (uid_t)-1;
+    return uid != INVALID_UID;
 }
 
 static __always_inline
@@ -41,12 +42,6 @@ bool trace_allowed(u32 tgid, u32 pid)
 }
 
 ///////////////////// OPEN SYSCALL //////////////////////////
-
-struct open_args {
-    const char *fname;
-    int dfd;
-    int flags;
-};
 
 struct {
     __uint(type, BPF_MAP_TYPE_HASH);
@@ -120,12 +115,6 @@ int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
 
 ///////////////////// EXECVE SYSCALL //////////////////////////
 
-struct execve_args {
-    const char *fname;
-    // const char *const *argv; // unused
-    // const char *const *envp; // unused
-};
-
 struct {
     __uint(type, BPF_MAP_TYPE_HASH);
     __uint(max_entries, 10240);
@@ -192,10 +181,6 @@ int tracepoint__syscalls__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
 
 ///////////////////// CHDIR SYSCALL //////////////////////////
 
-struct chdir_args {
-    const char *path;
-};
-
 struct {
     __uint(type, BPF_MAP_TYPE_HASH);
     __uint(max_entries, 10240);
@@ -254,10 +239,6 @@ int tracepoint__syscalls__sys_exit_chdir(struct trace_event_raw_sys_exit* ctx)
 }
 
 ///////////////////// FCHDIR SYSCALL //////////////////////////
-
-struct fchdir_args {
-    int fd;
-};
 
 struct {
     __uint(type, BPF_MAP_TYPE_HASH);

@@ -68,8 +68,7 @@ int run_opentracer()
     openlog("opentracer", LOG_PID, LOG_USER);
     syslog(LOG_INFO, "run_opentracer: Starting eBPF");
 
-    if (load_config(&config, "/home/roxanas/opentracer/config.ini") != 0) // TODO: replace with actual location
-    {
+    if (load_config(&config, "/home/roxanas/opentracer/config.ini") != 0) { // TODO: replace with actual location
         syslog(LOG_ERR, "run_opentracer: Failed to load config");
         return 1;
     }

@@ -42,7 +42,5 @@ private:
     std::unordered_map<int, std::vector<fs::path>> pid_to_fds_paths;
 };
 
-int run_processor();
-
 
 #endif /* __PROCESSOR_H__ */

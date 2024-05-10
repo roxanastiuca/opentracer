@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "../ebpf/opentracer.h"
+#include "../processor/processor.h"
 
 #define PID_SAVE_FILE "/tmp/opentracer.pid"
 
@@ -81,6 +82,12 @@ int slurm_spank_job_epilog(spank_t sp, int ac, char **av)
     // Kill opentracer process
     if (kill(pid, SIGINT) != 0) {
         syslog(LOG_ERR, "slurm_spank_job_epilog: Failed to kill process with PID %d", pid);
+        return -1;
+    }
+
+    // Run processor
+    if (run_processor() != 0) {
+        syslog(LOG_ERR, "slurm_spank_job_epilog: Failed to run processor");
         return -1;
     }
 

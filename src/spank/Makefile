@@ -1,7 +1,11 @@
 
-USER_C = ../ebpf/opentracer.c ../common/config.c ../common/mmf.c spank_plugin.c
+USER_C = ../ebpf/opentracer.c \
+		 ../common/config.c \
+		 ../common/mmf.c \
+		 spank_plugin.c \
+		 ../processor/processor.cxx
 COMMON_H = ../ebpf/opentracer.h
-LIBS = -lbpf -lelf -lz -pthread
+LIBS = -lbpf -lelf -lz -pthread -lmagic
 
 all: ebpf libopentracer.so
 

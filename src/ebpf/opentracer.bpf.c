@@ -8,7 +8,7 @@
 
 const volatile pid_t targ_pid = 0;
 const volatile pid_t targ_tgid = 0;
-const volatile uid_t targ_uid = 0; /* TODO: set to 0, left to 501 for testing */
+const volatile uid_t targ_uid = 60004; /* TODO: set to 0, left to 60004 for testing */
 
 struct {
     __uint(type, BPF_MAP_TYPE_RINGBUF);

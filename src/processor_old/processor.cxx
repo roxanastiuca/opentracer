@@ -1,114 +1,24 @@
 #include "processor.h"
 
-#include <dirent.h>
 #include <string.h>
 #include <sys/fcntl.h>
 #include <sys/mman.h>
-#include <sys/stat.h>
-#include <syslog.h>
+
 
 #include "../common/mmf.h"
 
-
-int get_list_of_files(
-    config_t &config,
-    std::vector<std::pair<time_t, std::string>> &files)
-{
-    DIR *dir;
-    struct dirent *entry;
-    struct stat file_stat;
-
-    // Open events directory
-    dir = opendir(config.events_save_path);
-    if (dir == NULL) {
-        syslog(LOG_ERR, "get_list_of_files: Error opening directory %s", config.events_save_path);
-        return -1;
-    }
-
-    // Iterate over all files in directory
-    while ((entry = readdir(dir)) != NULL) {
-        char file_path[MAX_FILE_NAME];
-        snprintf(file_path, MAX_FILE_NAME, "%s/%s", config.events_save_path, entry->d_name);
-
-        // Check if entry is a regular file
-        if (stat(file_path, &file_stat) == 0 && S_ISREG(file_stat.st_mode)) {
-            time_t last_modified = file_stat.st_mtime;
-
-            if (last_modified > config.last_processed_timestamp) {
-                files.push_back(std::make_pair(last_modified, std::string(file_path)));
-                // printf("File %s, last modified: %ld > %ld\n",
-                //         file_path, last_modified, config.last_processed_timestamp);
-            } else {
-                // printf("File was last modified before the last run of processor."
-                //        " Skipping  %s\n", file_path);
-            }
-        }
-    }
-
-    closedir(dir);
-
-    // Sort files ascending on last modified timestamp
-    std::sort(files.begin(), files.end());
-
-    return 0;
-}
-
-
-int run_processor()
-{
-    time_t current_timestamp = time(NULL);
-    int err;
-
-    config_t config;
-    if (load_config(&config, "/home/roxanas/opentracer/config.ini") != 0) {// TODO: replace with actual location
-        syslog(LOG_ERR, "run_processor: Failed to load config");
-        return 1;
-    }
-
-    std::vector<std::pair<time_t, std::string>> files;
-    err = get_list_of_files(config, files);
-    
-    // TODO: remove this, use a different storage option
-    char output_file_path[NAME_MAX];
-    sprintf(output_file_path, "/home/roxanas/opentracer/runs/open_%ld.txt", current_timestamp);
-    FILE *output_file = fopen(output_file_path, "a");
-    fprintf(output_file, "%-6s %-12s %-7s %-7s %-5s %-7s %-16s %-32s %s\n",
-            "KEEP", "TS", "PID", "UID", "RET", "FLAGS", "COMM", "MIME-TYPE", "FNAME");
-
-    Processor processor(config, output_file);
-
-    for (const auto &file : files) {
-        syslog(LOG_INFO, "run_processor: Processing file %s", file.second.c_str());
-        err = processor.process_file(file.second);
-    }
-
-    fclose(output_file); // TODO: remove this, use a different storage option
-
-    if (!err) {
-        // Update config with new value for last processed timestamp
-        config.last_processed_timestamp = current_timestamp;
-        if (save_config(&config, "/home/roxanas/opentracer/config.ini") < 0) {
-            syslog(LOG_ERR,
-                   "run_processor: Failed to save config file %s, last processed timestamp: %ld",
-                   "/home/roxanas/opentracer/config.ini", current_timestamp);
-            return -1;
-        }
-    }
-
-    return err;
-}
 
 Processor::Processor(const config_t &config, FILE *output_file)
     : config(config), output_file(output_file)
 {
     magic_cookie = magic_open(MAGIC_MIME_TYPE);
     if (magic_cookie == NULL) {
-        syslog(LOG_ERR, "Processor: Failed to initialize libmagic");
+        fprintf(stderr, "Failed to initialize libmagic\n");
         exit(1);
     }
 
     if (magic_load(magic_cookie, NULL) != 0) {
-        syslog(LOG_ERR, "Processor: Failed to load magic database");
+        fprintf(stderr, "Failed to load magic database\n");
         magic_close(magic_cookie);
         exit(1);
     }
@@ -126,7 +36,7 @@ int Processor::process_file(const std::string &file_path)
 {
     memory_mapped_file_t mmf;
     if (open_memory_mapped_file(&config, file_path.c_str(), &mmf) < 0) {
-        syslog(LOG_ERR, "process_file: Failed to open memory-mapped file %s", file_path.c_str());
+        fprintf(stderr, "Failed to open memory-mapped file %s\n", file_path.c_str());
         return -1;
     }
 
@@ -172,12 +82,12 @@ int Processor::process_event(const event_t *e)
             strcpy(type, "UNKNOWN");
     }
 
-    // struct tm *tm = localtime(&e->ts);
-    // char ts[20];
-    // strftime(ts, sizeof(ts), "%Y-%m-%d-%H:%M:%S", tm);
+    struct tm *tm = localtime(&e->ts);
+    char ts[20];
+    strftime(ts, sizeof(ts), "%Y-%m-%d-%H:%M:%S", tm);
 
-    // printf("\t%-22s %-7s %-7d %-5d %-7d %-16s %s\n",
-            // ts, type, e->dfd, e->ret, e->pid, e->comm, e->fname);
+    printf("\t%-22s %-7s %-7d %-5d %-7d %-16s %s\n",
+            ts, type, e->dfd, e->ret, e->pid, e->comm, e->fname);
 
     return err;
 }
@@ -224,8 +134,12 @@ int Processor::process_event_open(const event_t *e)
         pid_to_fds_paths[e->pid][e->ret] = abs_path;
     }
 
-    // syslog(LOG_DEBUG, "OPEN: %d -> %d -> %s", e->pid, e->ret, abs_path.c_str());
+    printf("OPEN: %d -> %d -> %s\n", e->pid, e->ret, abs_path.c_str());
+
     save_event_open(e, abs_path);
+    // // TODO: remove this, use a different storage option
+    // fprintf(output_file, "%-12ld %-7d %-7d %-5d %-7d %-16s %s\n",
+    //         e->ts, e->pid, e->uid, e->ret, e->flags, e->comm, abs_path.c_str());
 
     return 0;
 }
@@ -248,7 +162,7 @@ int Processor::process_event_chdir(const event_t *e)
         }
     }
 
-    // syslog(LOG_DEBUG, "CHDIR: %d -> %s\n", e->pid, pid_to_cwd[e->pid].c_str());
+    printf("CHDIR: %d -> %s\n", e->pid, pid_to_cwd[e->pid].c_str());
 
     return 0;
 }
@@ -269,7 +183,7 @@ int Processor::process_event_fchdir(const event_t *e)
         }
     }
 
-    // syslog(LOG_DEBUG, "FCHDIR: %d -> %s\n", e->pid, pid_to_cwd[e->pid].c_str());
+    printf("FCHDIR: %d -> %s\n", e->pid, pid_to_cwd[e->pid].c_str());
 
     return 0;
 }
@@ -288,7 +202,7 @@ int Processor::process_event_execve(const event_t *e)
         pid_to_cwd[e->pid] = "UNK";
     }
     
-    // syslog(LOG_DEBUG, "EXECVE: %d -> %s\n", e->pid, pid_to_cwd[e->pid].c_str());
+    printf("EXECVE: %d -> %s\n", e->pid, pid_to_cwd[e->pid].c_str());
 
     return 0;
 }
@@ -300,11 +214,6 @@ int Processor::save_event_open(const event_t *e, const fs::path &path)
 {
     // Skip /proc and /sys
     if (path.string().rfind("/proc", 0) == 0 || path.string().rfind("/sys", 0) == 0) {
-        return 0;
-    }
-
-    // Skip slurm processes & others
-    if (strncmp(e->comm, "slurm", 5) == 0 || strncmp(e->comm, "sleep", 5) == 0) {
         return 0;
     }
 
@@ -330,6 +239,9 @@ int Processor::save_event_open(const event_t *e, const fs::path &path)
     }
 
     bool is_accepted = is_accepted_file(path, file_type, mime_type);
+    // if (!is_accepted_file(path, file_type, mime_type)) {
+    //     return 0;
+    // }
 
     // TODO: remove this, use a different storage option
     fprintf(output_file, "%-6s %-12ld %-7d %-7d %-5d %-7d %-16s %-32s %s %s %d\n",
@@ -357,7 +269,7 @@ bool Processor::is_accepted_file(
     }
 
     // Accept if unknown mime type or none set in config
-    if (mime_type == NULL) {
+    if (config.accepted_mime_types.empty() || mime_type == NULL) {
         return true;
     }
 
@@ -367,5 +279,5 @@ bool Processor::is_accepted_file(
         return true;
     }
 
-    return false;
+    return config.accepted_mime_types.find(std::string(mime_type)) != config.accepted_mime_types.end();
 }

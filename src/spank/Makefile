@@ -1,7 +1,7 @@
 
 USER_C = ../ebpf/opentracer.c ../common/config.c ../common/mmf.c spank_plugin.c
 COMMON_H = ../ebpf/opentracer.h
-LIBS = -lbpf -lelf -lz
+LIBS = -lbpf -lelf -lz -pthread
 
 all: ebpf libopentracer.so
 
@@ -10,10 +10,10 @@ ebpf:
 	cp ../ebpf/opentracer.bpf.o .
 
 libopentracer.so: $(USER_C) $(USER_SKEL) $(COMMON_H)
-	gcc -shared -fPIC -o libopentracer.so $(USER_C) -ldl $(LIBS) -Wall
+	g++ -shared -fPIC -o libopentracer.so $(USER_C) -ldl $(LIBS) -Wall
 
 local:
-	gcc -o local_test $(USER_C) $(LIBS) -Wall
+	g++ -o local_test $(USER_C) $(LIBS) -Wall
 
 clean:
 	- rm libopentracer.so

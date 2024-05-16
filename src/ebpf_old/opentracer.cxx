@@ -15,9 +15,6 @@
 #include "../common/mmf.h"
 #include "../common/tracer_events.h"
 
-// avoid including vmlinux.h, use hardcoded values
-#define AT_FDCWD                -100    /* Special value used to indicate openat should use the current working directory. */
-
 
 static volatile bool keep_running = true;
 static void sig_handler(int)

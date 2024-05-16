@@ -5,6 +5,9 @@
 
 #define TASK_COMM_LEN 16
 
+// avoid including vmlinux.h, use hardcoded values
+#define AT_FDCWD                -100    /* Special value used to indicate openat should use the current working directory. */
+
 
 enum event_type {
     NO_EVENT = 0,

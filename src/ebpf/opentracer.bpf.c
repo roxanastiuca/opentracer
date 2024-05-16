@@ -55,10 +55,6 @@ struct {
     __type(value, struct open_args);
 } open_start SEC(".maps");
 
-// arch has no open syscall, but add it for cluster architecture
-// SEC("tp/syscalls/sys_enter_open")
-// int tracepoint__syscalls__sys_enter_open(struct trace_event_raw_sys_enter* ctx)
-
 SEC("tracepoint/syscalls/sys_enter_openat")
 int tracepoint__syscalls__sys_enter_openat(struct trace_event_raw_sys_enter* ctx)
 {
@@ -77,8 +73,26 @@ int tracepoint__syscalls__sys_enter_openat(struct trace_event_raw_sys_enter* ctx
     return 0;
 }
 
-SEC("tracepoint/syscalls/sys_exit_openat")
-int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
+SEC("tracepoint/syscalls/sys_enter_open")
+int tracepoint__syscalls__sys_enter_open(struct trace_event_raw_sys_enter* ctx)
+{
+    u64 id = bpf_get_current_pid_tgid();
+    u32 tgid = id >> 32;
+    u32 pid = id;
+
+    if (trace_allowed(tgid, pid)) {
+        struct open_args args = {};
+        args.fname = (const char *)ctx->args[0];
+        args.flags = (int)ctx->args[1];
+        args.dfd = AT_FDCWD;
+        bpf_map_update_elem(&open_start, &pid, &args, 0);
+    }
+
+    return 0;
+}
+
+static __always_inline
+int common__sys_exit_open(struct trace_event_raw_sys_exit* ctx)
 {
     event_t *event;
     struct open_args *ap;
@@ -117,6 +131,18 @@ int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
     return 0;
 }
 
+SEC("tracepoint/syscalls/sys_exit_openat")
+int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
+{
+    return common__sys_exit_open(ctx);
+}
+
+SEC("tracepoint/syscalls/sys_exit_open")
+int tracepoint__syscalls__sys_exit_open(struct trace_event_raw_sys_exit* ctx)
+{
+    return common__sys_exit_open(ctx);
+}
+
 
 ///////////////////// EXECVE SYSCALL //////////////////////////
 
@@ -149,8 +175,25 @@ int tracepoint__syscalls__sys_enter_execve(struct trace_event_raw_sys_enter* ctx
     return 0;
 }
 
-SEC("tracepoint/syscalls/sys_exit_execve")
-int tracepoint__syscalls__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
+SEC("tracepoint/syscalls/sys_enter_execveat")
+int tracepoint__syscalls__sys_enter_execveat(struct trace_event_raw_sys_enter* ctx)
+{
+    u64 id = bpf_get_current_pid_tgid();
+    u32 tgid = id >> 32;
+    u32 pid = id;
+
+    if (trace_allowed(tgid, pid)) {
+        struct execve_args args = {};
+        args.fname = (const char *)ctx->args[1];
+        // ignore dfd
+        bpf_map_update_elem(&execve_start, &pid, &args, 0);
+    }
+
+    return 0;
+}
+
+static __always_inline
+int common__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
 {
     event_t *event;
     struct execve_args *ap;
@@ -190,6 +233,17 @@ int tracepoint__syscalls__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
     return 0;
 }
 
+SEC("tracepoint/syscalls/sys_exit_execve")
+int tracepoint__syscalls__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
+{
+    return common__sys_exit_execve(ctx);
+}
+
+SEC("tracepoint/syscalls/sys_exit_execveat")
+int tracepoint__syscalls__sys_exit_execveat(struct trace_event_raw_sys_exit* ctx)
+{
+    return common__sys_exit_execve(ctx);
+}
 
 
 ///////////////////// CHDIR SYSCALL //////////////////////////

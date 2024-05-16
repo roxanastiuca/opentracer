@@ -1,6 +1,7 @@
 #include <signal.h>
 #include <string.h>
 #include <syslog.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "../ebpf/opentracer.h"
@@ -69,6 +70,9 @@ int slurm_spank_job_epilog(spank_t sp, int ac, char **av)
     openlog("opentracer", LOG_PID, LOG_USER);
     syslog(LOG_INFO, "slurm_spank_job_epilog: Started");
 
+    clock_t start, end;
+    start = clock();
+
     // Get PID
     FILE *pid_file = fopen(PID_SAVE_FILE, "r");
     if (pid_file == NULL) {
@@ -91,7 +95,10 @@ int slurm_spank_job_epilog(spank_t sp, int ac, char **av)
         return -1;
     }
 
-    syslog(LOG_INFO, "slurm_spank_job_epilog: Finished");
+    end = clock();
+    double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+    syslog(LOG_INFO, "slurm_spank_job_epilog: Finished in %f sec", cpu_time_used);
     closelog();
     return 0;
 }

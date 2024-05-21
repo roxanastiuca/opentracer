@@ -23,6 +23,7 @@ extern const char plugin_type [] asm("plugin_type") = "spank";
 extern const unsigned int plugin_version asm("plugin_version") = SLURM_VERSION_NUMBER;
 extern const unsigned int spank_plugin_version asm("spank_plugin_version") = 1;
 
+
 int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
 {
     openlog("opentracer", LOG_PID, LOG_USER);
@@ -89,8 +90,27 @@ int slurm_spank_job_epilog(spank_t sp, int ac, char **av)
         return -1;
     }
 
+    // Get data from slurm about job
+    uid_t uid;
+    if (spank_get_item(sp, S_JOB_UID, &uid) != ESPANK_SUCCESS) {
+        syslog(LOG_ERR, "slurm_spank_job_epilog: Failed to get job UID");
+        return -1;
+    }
+
+    gid_t gid;
+    if (spank_get_item(sp, S_JOB_GID, &gid) != ESPANK_SUCCESS) {
+        syslog(LOG_ERR, "slurm_spank_job_epilog: Failed to get job GID");
+        return -1;
+    }
+    
+    uint32_t jobid;
+    if (spank_get_item(sp, S_JOB_ID, &jobid) != ESPANK_SUCCESS) {
+        syslog(LOG_ERR, "slurm_spank_job_epilog: Failed to get job ID");
+        return -1;
+    }
+
     // Run processor
-    if (run_processor() != 0) {
+    if (run_processor(uid, gid, jobid) != 0) {
         syslog(LOG_ERR, "slurm_spank_job_epilog: Failed to run processor");
         return -1;
     }

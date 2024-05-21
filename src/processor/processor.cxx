@@ -54,7 +54,7 @@ int get_list_of_files(
 }
 
 
-int run_processor()
+int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
 {
     time_t current_timestamp = time(NULL);
     int err;
@@ -65,6 +65,7 @@ int run_processor()
         return 1;
     }
 
+
     std::vector<std::pair<time_t, std::string>> files;
     err = get_list_of_files(config, files);
     
@@ -72,7 +73,9 @@ int run_processor()
     char output_file_path[NAME_MAX];
     sprintf(output_file_path, "/home/roxanas/opentracer/runs/open_%ld.txt", current_timestamp);
     FILE *output_file = fopen(output_file_path, "a");
-    fprintf(output_file, "%-6s %-12s %-7s %-7s %-5s %-7s %-16s %-32s %s\n",
+    
+    fprintf(output_file, "UID: %d, GID: %d, JOBID: %d, data:\n", uid, gid, jobid);
+    fprintf(output_file, "%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
             "KEEP", "TS", "PID", "UID", "RET", "FLAGS", "COMM", "MIME-TYPE", "FNAME");
 
     Processor processor(config, output_file);
@@ -332,13 +335,12 @@ int Processor::save_event_open(const event_t *e, const fs::path &path)
     bool is_accepted = is_accepted_file(path, file_type, mime_type);
 
     // TODO: remove this, use a different storage option
-    fprintf(output_file, "%-6s %-12ld %-7d %-7d %-5d %-7d %-16s %-32s %s %s %d\n",
+    fprintf(output_file, "%s,%ld,%d,%d,%d,%d,%s,%s,%s,%s\n",
             is_accepted ? "KEEP" : "SKIP",
             e->ts, e->pid, e->uid, e->ret, e->flags, e->comm,
-            ((int)file_type > 0 && mime_type != NULL) ? mime_type : "UNK",
+            ((int)file_type > 0 && mime_type != NULL) ? mime_type : "?",
             path.c_str(),
-            link_path.c_str(),
-            (int)file_type);
+            link_path.c_str());
 
     return 0;
 }

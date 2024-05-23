@@ -20,15 +20,14 @@ enum event_type {
 typedef struct {
     long int ts; // timestamp when the event is consumed by the user process
                  // (too expensive to get time in kernel space)
-    char event_type;
-    pid_t pid;
-    uid_t uid;
-    int ret;
-    int flags;
-    int dfd; // DFD for openat(), FD for fchdir()
-    // __u64 callers[2]; // unused
-    char comm[TASK_COMM_LEN];
-    char fname[NAME_MAX];
+    char event_type;    // kernel event type
+    pid_t pid;          // process ID
+    uid_t uid;          // user ID
+    int ret;            // return value
+    int flags;          // flags for open() and openat()
+    int dfd;            // dfd argument for openat(), fd argument for fchdir()
+    char comm[TASK_COMM_LEN];   // command name
+    char fname[NAME_MAX];       // file name
 } event_t;
 
 #endif /* __TRACER_EVENTS_H */

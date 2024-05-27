@@ -45,6 +45,11 @@ int load_config(config_t *config, const char *config_file_path)
                 fprintf(stderr, "Error: Invalid value for last_processed_timestamp: %s\n", value);
                 err = -1;
             }
+        } else if (strcmp(key, "events_limit") == 0) {
+            if (sscanf(value, "%ld", &config->events_limit) != 1) {
+                fprintf(stderr, "Error: Invalid value for events_limit: %s\n", value);
+                err = -1;
+            }
         } else {
             fprintf(stderr, "Error: Unknown key in config file: %s\n", key);
             err = -1;
@@ -67,6 +72,7 @@ int save_config(config_t *config, const char *config_file_path)
     fprintf(fout, "events_save_path = %s\n", config->events_save_path);
     fprintf(fout, "events_file_size_limit = %lu\n", config->events_file_size_limit);
     fprintf(fout, "last_processed_timestamp = %lu\n", config->last_processed_timestamp);
+    fprintf(fout, "events_limit = %ld\n", config->events_limit);
 
     fclose(fout);
     return 0;

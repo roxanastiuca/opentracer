@@ -20,6 +20,8 @@ static config_t config;
 static memory_mapped_file_t mmf = {0};
 static char file_name[MAX_FILE_NAME];
 
+static long int events_nb = 0;
+
 static volatile bool keep_running = true;
 static void sig_handler(int signo)
 {
@@ -29,6 +31,11 @@ static void sig_handler(int signo)
 
 int handle_event(void *ctx, void *data, size_t data_sz)
 {
+    if (config.events_limit > 0 && events_nb >= config.events_limit) {
+        syslog(LOG_DEBUG, "handle_event: Reached events limit");
+        return 0;
+    }
+
     /* Write data to memory-mapped file */
     if (mmf.addr == NULL) {
         syslog(LOG_CRIT, "handle_event: Memory-mapped file not initialized");
@@ -55,6 +62,8 @@ int handle_event(void *ctx, void *data, size_t data_sz)
            (char*)data + sizeof(time_t), data_sz - sizeof(time_t));
     *(mmf.write_offset) += data_sz;
 
+    events_nb++;
+
     return 0;
 }
 
@@ -68,7 +77,7 @@ int run_opentracer()
     openlog("opentracer", LOG_PID, LOG_USER);
     syslog(LOG_INFO, "run_opentracer: Starting eBPF");
 
-    if (load_config(&config, "/home/roxanas/opentracer/config.ini") != 0) { // TODO: replace with actual location
+    if (load_config(&config, CONFIG_FILE_PATH) != 0) { // TODO: replace with actual location
         syslog(LOG_ERR, "run_opentracer: Failed to load config");
         return 1;
     }

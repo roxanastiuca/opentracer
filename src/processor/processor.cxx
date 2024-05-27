@@ -60,7 +60,7 @@ int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
     int err;
 
     config_t config;
-    if (load_config(&config, "/home/roxanas/opentracer/config.ini") != 0) {// TODO: replace with actual location
+    if (load_config(&config, CONFIG_FILE_PATH) != 0) {// TODO: replace with actual location
         syslog(LOG_ERR, "run_processor: Failed to load config");
         return 1;
     }
@@ -71,7 +71,7 @@ int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
     
     // TODO: remove this, use a different storage option
     char output_file_path[NAME_MAX];
-    sprintf(output_file_path, "/home/roxanas/opentracer/runs/open_%ld.txt", current_timestamp);
+    sprintf(output_file_path, "/etc/yalt/runs/open_%ld.txt", current_timestamp);
     FILE *output_file = fopen(output_file_path, "a");
     
     fprintf(output_file, "UID: %d, GID: %d, JOBID: %d, data:\n", uid, gid, jobid);
@@ -90,10 +90,10 @@ int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
     if (!err) {
         // Update config with new value for last processed timestamp
         config.last_processed_timestamp = current_timestamp;
-        if (save_config(&config, "/home/roxanas/opentracer/config.ini") < 0) {
+        if (save_config(&config, CONFIG_FILE_PATH) < 0) {
             syslog(LOG_ERR,
                    "run_processor: Failed to save config file %s, last processed timestamp: %ld",
-                   "/home/roxanas/opentracer/config.ini", current_timestamp);
+                   CONFIG_FILE_PATH, current_timestamp);
             return -1;
         }
     }

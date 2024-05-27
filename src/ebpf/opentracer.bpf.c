@@ -5,10 +5,15 @@
 
 #include "../common/tracer_events.h"
 
-
+/* Options for filtering: */
 const volatile pid_t targ_pid = 0;
 const volatile pid_t targ_tgid = 0;
-const volatile uid_t targ_uid = 60004; /* TODO: set to 0, left to 60004 for testing */
+const volatile uid_t targ_uid = 0;
+const volatile uid_t targ_uid_min = 0;
+const volatile long int events_limit = 0;
+
+volatile long int events_count = 0;
+
 
 struct {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
@@ -23,6 +28,9 @@ static __always_inline bool valid_uid(uid_t uid) {
 static __always_inline
 bool trace_allowed(u32 tgid, u32 pid)
 {
+    if (events_limit > 0 && events_count >= events_limit)
+        return false;
+
     u32 uid;
 
     /* filters */
@@ -33,6 +41,12 @@ bool trace_allowed(u32 tgid, u32 pid)
     if (valid_uid(targ_uid)) {
         uid = (u32)bpf_get_current_uid_gid();
         if (targ_uid != uid) {
+            return false;
+        }
+    }
+    if (valid_uid(targ_uid_min)) {
+        uid = (u32)bpf_get_current_uid_gid();
+        if (uid < targ_uid_min) {
             return false;
         }
     }
@@ -126,6 +140,7 @@ int common__sys_exit_open(struct trace_event_raw_sys_exit* ctx)
     // event->callers[1] = stack[2];
 
     /* emit event */
+    events_count++;
     bpf_ringbuf_submit(event, 0);
 
     return 0;

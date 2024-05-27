@@ -4,17 +4,20 @@
 
 #include "config.h"
 
-int load_config(config_t *config, const char *config_file_path)
+int load_config(config_t *config)
 {
-    FILE *fin = fopen(config_file_path, "rt");
+    FILE *fin = fopen(CONFIG_FILE_PATH, "rt");
     if (fin == NULL)
     {
-        fprintf(stderr, "Error: Cannot open config file %s\n", config_file_path);
+        fprintf(stderr, "Error: Cannot open config file %s\n", CONFIG_FILE_PATH);
         return -1;
     }
 
     char line[MAX_LINE_LENGTH];
     int err = 0;
+
+    // Set everything to 0
+    memset(config, 0, sizeof(config_t));
 
     while (fgets(line, MAX_LINE_LENGTH, fin) && !err) {
         // Remove trailing newline character
@@ -40,14 +43,29 @@ int load_config(config_t *config, const char *config_file_path)
                 fprintf(stderr, "Error: Invalid value for events_file_size_limit: %s\n", value);
                 err = -1;
             }
-        } else if (strcmp(key, "last_processed_timestamp") == 0) {
-            if (sscanf(value, "%lu", &config->last_processed_timestamp) != 1) {
-                fprintf(stderr, "Error: Invalid value for last_processed_timestamp: %s\n", value);
-                err = -1;
-            }
         } else if (strcmp(key, "events_limit") == 0) {
             if (sscanf(value, "%ld", &config->events_limit) != 1) {
                 fprintf(stderr, "Error: Invalid value for events_limit: %s\n", value);
+                err = -1;
+            }
+        } else if (strcmp(key, "targ_pid") == 0) {
+            if (sscanf(value, "%d", &config->targ_pid) != 1) {
+                fprintf(stderr, "Error: Invalid value for targ_pid: %s\n", value);
+                err = -1;
+            }
+        } else if (strcmp(key, "targ_tgid") == 0) {
+            if (sscanf(value, "%d", &config->targ_tgid) != 1) {
+                fprintf(stderr, "Error: Invalid value for targ_tgid: %s\n", value);
+                err = -1;
+            }
+        } else if (strcmp(key, "targ_uid") == 0) {
+            if (sscanf(value, "%d", &config->targ_uid) != 1) {
+                fprintf(stderr, "Error: Invalid value for targ_uid: %s\n", value);
+                err = -1;
+            }
+        } else if (strcmp(key, "targ_uid_min") == 0) {
+            if (sscanf(value, "%d", &config->targ_uid_min) != 1) {
+                fprintf(stderr, "Error: Invalid value for targ_uid_min: %s\n", value);
                 err = -1;
             }
         } else {
@@ -60,19 +78,59 @@ int load_config(config_t *config, const char *config_file_path)
     return err;
 }
 
-int save_config(config_t *config, const char *config_file_path)
+int save_config(const config_t *config)
 {
-    FILE *fout = fopen(config_file_path, "wt");
+    FILE *fout = fopen(CONFIG_FILE_PATH, "wt");
     if (fout == NULL)
     {
-        fprintf(stderr, "Error: Cannot open config file %s\n", config_file_path);
+        fprintf(stderr, "Error: Cannot open config file %s\n", CONFIG_FILE_PATH);
         return -1;
     }
 
     fprintf(fout, "events_save_path = %s\n", config->events_save_path);
     fprintf(fout, "events_file_size_limit = %lu\n", config->events_file_size_limit);
-    fprintf(fout, "last_processed_timestamp = %lu\n", config->last_processed_timestamp);
     fprintf(fout, "events_limit = %ld\n", config->events_limit);
+    fprintf(fout, "targ_pid = %d\n", config->targ_pid);
+    fprintf(fout, "targ_tgid = %d\n", config->targ_tgid);
+    fprintf(fout, "targ_uid = %d\n", config->targ_uid);
+    fprintf(fout, "targ_uid_min = %d\n", config->targ_uid_min);
+
+    fclose(fout);
+    return 0;
+}
+
+int load_last_processed_timestamp(time_t *last_processed_timestamp)
+{
+    FILE *fin = fopen(LAST_PROCESSED_TIMESTAMP_FILE_PATH, "rt");
+    if (fin == NULL)
+    {
+        fprintf(stderr, "Error: Cannot open last processed timestamp file %s\n",
+                LAST_PROCESSED_TIMESTAMP_FILE_PATH);
+        return -1;
+    }
+
+    if (fscanf(fin, "%ld", last_processed_timestamp) != 1)
+    {
+        fprintf(stderr, "Error: Invalid last processed timestamp file\n");
+        fclose(fin);
+        return -1;
+    }
+
+    fclose(fin);
+    return 0;
+}
+
+int save_last_processed_timestamp(const time_t *last_processed_timestamp)
+{
+    FILE *fout = fopen(LAST_PROCESSED_TIMESTAMP_FILE_PATH, "wt");
+    if (fout == NULL)
+    {
+        fprintf(stderr, "Error: Cannot open last processed timestamp file %s\n",
+                LAST_PROCESSED_TIMESTAMP_FILE_PATH);
+        return -1;
+    }
+
+    fprintf(fout, "%ld", *last_processed_timestamp);
 
     fclose(fout);
     return 0;

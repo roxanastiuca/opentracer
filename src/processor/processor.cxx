@@ -12,6 +12,7 @@
 
 int get_list_of_files(
     config_t &config,
+    const time_t last_processed_timestamp,
     std::vector<std::pair<time_t, std::string>> &files)
 {
     DIR *dir;
@@ -34,7 +35,7 @@ int get_list_of_files(
         if (stat(file_path, &file_stat) == 0 && S_ISREG(file_stat.st_mode)) {
             time_t last_modified = file_stat.st_mtime;
 
-            if (last_modified > config.last_processed_timestamp) {
+            if (last_modified > last_processed_timestamp) {
                 files.push_back(std::make_pair(last_modified, std::string(file_path)));
                 // printf("File %s, last modified: %ld > %ld\n",
                 //         file_path, last_modified, config.last_processed_timestamp);
@@ -57,17 +58,22 @@ int get_list_of_files(
 int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
 {
     time_t current_timestamp = time(NULL);
+    time_t last_processed_timestamp;
     int err;
 
     config_t config;
-    if (load_config(&config, CONFIG_FILE_PATH) != 0) {// TODO: replace with actual location
+    if (load_config(&config) != 0) {// TODO: replace with actual location
         syslog(LOG_ERR, "run_processor: Failed to load config");
         return 1;
     }
 
+    if (load_last_processed_timestamp(&last_processed_timestamp) != 0) {
+        syslog(LOG_WARNING, "run_processor: Failed to load last processed timestamp, using 0");
+        last_processed_timestamp = 0;
+    }
 
     std::vector<std::pair<time_t, std::string>> files;
-    err = get_list_of_files(config, files);
+    err = get_list_of_files(config, last_processed_timestamp, files);
     
     // TODO: remove this, use a different storage option
     char output_file_path[NAME_MAX];
@@ -89,8 +95,8 @@ int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
 
     if (!err) {
         // Update config with new value for last processed timestamp
-        config.last_processed_timestamp = current_timestamp;
-        if (save_config(&config, CONFIG_FILE_PATH) < 0) {
+        last_processed_timestamp = current_timestamp;
+        if (save_last_processed_timestamp(&last_processed_timestamp) < 0) {
             syslog(LOG_ERR,
                    "run_processor: Failed to save config file %s, last processed timestamp: %ld",
                    CONFIG_FILE_PATH, current_timestamp);
@@ -227,7 +233,7 @@ int Processor::process_event_open(const event_t *e)
         pid_to_fds_paths[e->pid][e->ret] = abs_path;
     }
 
-    // syslog(LOG_DEBUG, "OPEN: %d -> %d -> %s", e->pid, e->ret, abs_path.c_str());
+    // syslog(LOG_INFO, "OPEN: %d -> %d -> %s", e->pid, e->ret, abs_path.c_str());
     save_event_open(e, abs_path);
 
     return 0;

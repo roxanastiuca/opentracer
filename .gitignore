@@ -13,4 +13,4 @@ runs/
 config_*
 runs*
 test*
-libopentracer.so
+libopentracer*

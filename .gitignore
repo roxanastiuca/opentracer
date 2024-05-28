@@ -12,3 +12,5 @@ runs/
 .vscode/
 config_*
 runs*
+test*
+libopentracer*

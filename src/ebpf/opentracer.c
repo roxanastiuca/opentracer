@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
+#include <syslog.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -15,28 +16,23 @@
 #include "../common/mmf.h"
 #include "../common/tracer_events.h"
 
-// avoid including vmlinux.h, use hardcoded values
-#define AT_FDCWD                -100    /* Special value used to indicate openat should use the current working directory. */
+static config_t config;
+static memory_mapped_file_t mmf = {0};
+static char file_name[MAX_FILE_NAME];
 
 
 static volatile bool keep_running = true;
-static void sig_handler(int)
+static void sig_handler(int signo)
 {
-    printf("Shutting down\n");
+    syslog(LOG_INFO, "sig_handler: Received signal %d, stopping eBPF", signo);
     keep_running = false;
 }
-
-static config_t config;
-static memory_mapped_file_t mmf = {0}; // TODO: volatile?
-static char file_name[MAX_FILE_NAME];
-
 
 int handle_event(void *ctx, void *data, size_t data_sz)
 {
     /* Write data to memory-mapped file */
     if (mmf.addr == NULL) {
-        fprintf(stderr, "Memory-mapped file not initialized\n");
-        keep_running = false;
+        syslog(LOG_CRIT, "handle_event: Memory-mapped file not initialized");
         return -1;
     }
 
@@ -44,8 +40,7 @@ int handle_event(void *ctx, void *data, size_t data_sz)
         munmap(mmf.addr, config.events_file_size_limit);
         /* Create a new file */
         if (create_memory_mapped_file(&config, file_name, &mmf) != 0) {
-            fprintf(stderr, "Failed to create new memory-mapped file\n");
-            keep_running = false;
+            syslog(LOG_CRIT, "handle_event: Failed to create new memory-mapped file");
             return -1;
         }
     }
@@ -65,62 +60,64 @@ int handle_event(void *ctx, void *data, size_t data_sz)
 }
 
 
-
-int main(int argc, char **argv)
+int run_opentracer()
 {
-    if (argc != 2) {
-        fprintf(stderr, "Usage: %s <config_file>\n", argv[0]);
-        return 1;
-    }
+    struct opentracer_bpf *obj = NULL;
+    struct ring_buffer *rb = NULL;
+    int err;
 
-    if (load_config(&config, argv[1]) < 0) {
-        fprintf(stderr, "Failed to load config file %s\n", argv[1]);
+    openlog("opentracer", LOG_PID, LOG_USER);
+    syslog(LOG_INFO, "run_opentracer: Starting eBPF");
+
+    if (load_config(&config) != 0) {
+        syslog(LOG_ERR, "run_opentracer: Failed to load config");
         return 1;
     }
 
     LIBBPF_OPTS(bpf_object_open_opts, open_opts);
-    struct opentracer_bpf *obj = NULL;
-    int err;
+    libbpf_set_strict_mode(LIBBPF_STRICT_ALL); // TODO: check if this is necessary
 
-    struct ring_buffer *rb = NULL;
-
-    /* clean handle Ctrl-C */
     signal(SIGINT, sig_handler);
     signal(SIGTERM, sig_handler);
 
-    libbpf_set_strict_mode(LIBBPF_STRICT_ALL);
-
     obj = opentracer_bpf__open_opts(&open_opts);
     if (!obj) {
-        fprintf(stderr, "Failed to open BPF object\n");
+        syslog(LOG_ERR, "run_opentracer: Failed to open BPF object, errno: %d", errno);
         return 1;
     }
 
+    // Add filters based on config
+    obj->rodata->events_limit = config.events_limit;
+    obj->rodata->targ_pid = config.targ_pid;
+    obj->rodata->targ_tgid = config.targ_tgid;
+    obj->rodata->targ_uid = config.targ_uid;
+    obj->rodata->targ_uid_min = config.targ_uid_min;
+
     err = create_memory_mapped_file(&config, file_name, &mmf);
     if (err) {
-        fprintf(stderr, "Failed to create memory-mapped file\n");
+        syslog(LOG_ERR, "run_opentracer: Failed to create memory-mapped file");
         goto cleanup;
     }
 
     err = opentracer_bpf__load(obj);
     if (err) {
-        fprintf(stderr, "Failed to load BPF object: %d\n", err);
+        syslog(LOG_ERR, "run_opentracer: Failed to load BPF object: %d", err);
         goto cleanup;
     }
 
     err = opentracer_bpf__attach(obj);
     if (err) {
-        fprintf(stderr, "Failed to attach BPF programs: %d\n", err);
+        syslog(LOG_ERR, "run_opentracer: Failed to attach BPF programs: %d", err);
         goto cleanup;
     }
 
     rb = ring_buffer__new(bpf_map__fd(obj->maps.events), handle_event, NULL, NULL);
     if (!rb) {
-        fprintf(stderr, "Failed to create ring buffer\n");
+        syslog(LOG_ERR, "run_opentracer: Failed to create ring buffer");
         goto cleanup;
     }
 
-    printf("SETUP DONE\n");
+    syslog(LOG_INFO, "run_opentracer: eBPF setup done");
 
     while (keep_running) {
         err = ring_buffer__poll(rb, 10000);
@@ -129,12 +126,14 @@ int main(int argc, char **argv)
             break;
         }
         if (err < 0) {
-            printf("Error polling ring buffer: %d\n", err);
+            syslog(LOG_ERR, "run_opentracer: Error polling ring buffer: %d", err);
             break;
         }
     }
 
 cleanup:
+    syslog(LOG_INFO, "run_opentracer: Cleaning up");
+
     if (rb != NULL)     ring_buffer__free(rb);
     if (obj != NULL)    opentracer_bpf__destroy(obj);
     if (mmf.addr != NULL) {
@@ -142,5 +141,8 @@ cleanup:
         close_memory_mapped_file(&config, file_name, &mmf);
     }
 
-    return err != 0;
+    syslog(LOG_INFO, "run_opentracer: Finished");
+    closelog();
+
+    return 0;
 }

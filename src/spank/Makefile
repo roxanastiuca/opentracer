@@ -2,6 +2,7 @@
 USER_C = ../ebpf/opentracer.c \
 		 ../common/config.c \
 		 ../common/mmf.c \
+		 ../storage/simple_storage.cxx \
 		 spank_plugin.c \
 		 ../processor/processor.cxx
 COMMON_H = ../ebpf/opentracer.h

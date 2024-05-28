@@ -16,10 +16,10 @@
 
 namespace fs = std::filesystem;
 
-
+template<typename Storage>
 class Processor {
 public:
-    Processor(const config_t &config, FILE *output_file /* TODO: change this */);
+    Processor(const config_t &config, Storage &storage);
     ~Processor();
     int process_file(const std::string &file_path);
 
@@ -35,7 +35,7 @@ private:
         const fs::path &path, const fs::file_type &type, const char *mime_type);
 
     const config_t &config;
-    FILE *output_file; // TODO: remove this, use a different storage option
+    Storage &storage;
     magic_t magic_cookie;
 
     std::unordered_map<int, fs::path> pid_to_cwd;

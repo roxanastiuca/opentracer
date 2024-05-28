@@ -1,6 +1,14 @@
 #ifndef __TRACER_EVENTS_H
 #define __TRACER_EVENTS_H
 
+/**
+ * uid_t and pid_t are defined by vmlinux.h in kernel space,
+ * so we don't want to redefine it */
+#ifdef OPENTRACER_USERSPACE
+#include <sys/types.h>
+#include <stdint.h>
+#endif /* OPENTRACER_USERSPACE */
+
 #include <limits.h>
 
 #define TASK_COMM_LEN 16

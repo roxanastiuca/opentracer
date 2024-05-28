@@ -3,10 +3,11 @@ USER_C = ../ebpf/opentracer.c \
 		 ../common/config.c \
 		 ../common/mmf.c \
 		 ../storage/simple_storage.cxx \
+		 ../storage/database.cxx \
 		 spank_plugin.c \
 		 ../processor/processor.cxx
 COMMON_H = ../ebpf/opentracer.h
-LIBS = -lbpf -lelf -lz -pthread -lmagic
+LIBS = -lbpf -lelf -lz -pthread -lmagic -lsqlite3
 
 all: ebpf libopentracer.so
 
@@ -15,7 +16,7 @@ ebpf:
 	cp ../ebpf/opentracer.bpf.o .
 
 libopentracer.so: $(USER_C) $(USER_SKEL) $(COMMON_H)
-	g++ -shared -fPIC -o libopentracer.so $(USER_C) -ldl $(LIBS) -Wall
+	g++ -DOPENTRACER_USERSPACE=1 -shared -fPIC -o libopentracer.so $(USER_C) -ldl $(LIBS) -Wall
 
 local:
 	g++ -o local_test $(USER_C) $(LIBS) -Wall

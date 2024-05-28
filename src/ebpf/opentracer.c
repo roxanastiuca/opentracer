@@ -1,8 +1,10 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <sys/mman.h>
+#include <sys/types.h>
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
@@ -15,6 +17,7 @@
 #include "../common/config.h"
 #include "../common/mmf.h"
 #include "../common/tracer_events.h"
+
 
 static config_t config;
 static memory_mapped_file_t mmf = {0};

@@ -1,15 +1,16 @@
-#ifndef __SIMPLE_STORAGE_H__
-#define __SIMPLE_STORAGE_H__
+#ifndef __DATABASE_H__
+#define __DATABASE_H__
 
-#include <stdio.h>
+#include <sqlite3.h>
 
 #include "../common/tracer_events.h"
 
 
-class SimpleStorage {
+class Database {
 public:
-    SimpleStorage(uid_t uid, gid_t gid, uint32_t jobid);
-    ~SimpleStorage();
+    Database();
+    ~Database();
+    int save_job(uid_t uid, gid_t gid, uint32_t jobid);
     int save_event(
         const event_t *event,
         bool is_accepted,
@@ -18,8 +19,8 @@ public:
         const char *link_path);
 
 private:
-    FILE *fout;
+    sqlite3 *db;
 };
 
 
-#endif /* __SIMPLE_STORAGE_H__ */
+#endif /* __DATABASE_H__ */

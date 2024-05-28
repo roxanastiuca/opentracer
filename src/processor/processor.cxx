@@ -9,6 +9,7 @@
 
 #include "../common/mmf.h"
 
+#include "../storage/database.h"
 #include "../storage/simple_storage.h"
 
 
@@ -81,7 +82,8 @@ int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
         return -1;
     }
 
-    SimpleStorage storage(uid, gid, jobid);
+    Database storage;
+    storage.save_job(uid, gid, jobid);
     Processor processor(config, storage);
 
     for (const auto &file : files) {

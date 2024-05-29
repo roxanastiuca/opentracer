@@ -82,14 +82,17 @@ int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
         return -1;
     }
 
-    Database storage;
-    storage.save_job(uid, gid, jobid);
+    Database storage(uid, gid, jobid);
+    storage.save_job();
+    storage.start_transaction();
     Processor processor(config, storage);
 
     for (const auto &file : files) {
         syslog(LOG_INFO, "run_processor: Processing file %s", file.second.c_str());
         err = processor.process_file(file.second);
     }
+    
+    storage.end_transaction();
 
     if (!err) {
         // Update config with new value for last processed timestamp

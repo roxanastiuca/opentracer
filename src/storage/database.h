@@ -2,15 +2,21 @@
 #define __DATABASE_H__
 
 #include <sqlite3.h>
+#include <stdint.h>
+#include <sys/types.h>
 
 #include "../common/tracer_events.h"
 
 
 class Database {
 public:
-    Database();
+    Database(uid_t uid, gid_t gid, uint32_t jobid);
     ~Database();
-    int save_job(uid_t uid, gid_t gid, uint32_t jobid);
+
+    int start_transaction();
+    int end_transaction();
+
+    int save_job();
     int save_event(
         const event_t *event,
         bool is_accepted,
@@ -19,7 +25,15 @@ public:
         const char *link_path);
 
 private:
+    int execute(const char *sql);
+    int prepare_statements();
+
     sqlite3 *db;
+    sqlite3_stmt *insert_event_stmt;
+
+    uid_t uid;
+    gid_t gid;
+    uint32_t jobid;
 };
 
 

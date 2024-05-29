@@ -71,8 +71,8 @@ int slurm_spank_job_epilog(spank_t sp, int ac, char **av)
     openlog("opentracer", LOG_PID, LOG_USER);
     syslog(LOG_INFO, "slurm_spank_job_epilog: Started");
 
-    clock_t start, end;
-    start = clock();
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
 
     // Get PID
     FILE *pid_file = fopen(PID_SAVE_FILE, "r");
@@ -115,10 +115,10 @@ int slurm_spank_job_epilog(spank_t sp, int ac, char **av)
         return -1;
     }
 
-    end = clock();
-    double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    float elapsed = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
 
-    syslog(LOG_INFO, "slurm_spank_job_epilog: Finished in %f sec", cpu_time_used);
+    syslog(LOG_INFO, "slurm_spank_job_epilog: Finished in %f seconds", elapsed);
     closelog();
     return 0;
 }

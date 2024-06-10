@@ -7,6 +7,11 @@
 #define CONFIG_FILE_PATH "/etc/yalt/opentracer_config.ini"
 #define LAST_PROCESSED_TIMESTAMP_FILE_PATH "/etc/yalt/last_processed_timestamp.txt"
 
+typedef enum {
+    STORAGE_TYPE_SIMPLE = 0,
+    STORAGE_TYPE_DATABASE = 1
+} storage_type_t;
+
 typedef struct {
     char events_save_path[255];                             // path to save events
     unsigned long events_file_size_limit;                   // max size of events file
@@ -15,6 +20,7 @@ typedef struct {
     pid_t targ_tgid;                                        // target thread group id
     int targ_uid;                                         // target user id
     int targ_uid_min;                                     // target min user id
+    storage_type_t storage_type;                            // storage type
 } config_t;
 
 /**

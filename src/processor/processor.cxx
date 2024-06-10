@@ -9,6 +9,9 @@
 
 #include "../common/mmf.h"
 
+#include "../storage/database.h"
+#include "../storage/simple_storage.h"
+
 
 int get_list_of_files(
     config_t &config,
@@ -62,7 +65,7 @@ int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
     int err;
 
     config_t config;
-    if (load_config(&config) != 0) {// TODO: replace with actual location
+    if (load_config(&config) != 0) {
         syslog(LOG_ERR, "run_processor: Failed to load config");
         return 1;
     }
@@ -74,24 +77,27 @@ int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
 
     std::vector<std::pair<time_t, std::string>> files;
     err = get_list_of_files(config, last_processed_timestamp, files);
-    
-    // TODO: remove this, use a different storage option
-    char output_file_path[NAME_MAX];
-    sprintf(output_file_path, "/etc/yalt/runs/open_%ld.txt", current_timestamp);
-    FILE *output_file = fopen(output_file_path, "a");
-    
-    fprintf(output_file, "UID: %d, GID: %d, JOBID: %d, data:\n", uid, gid, jobid);
-    fprintf(output_file, "%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
-            "KEEP", "TS", "PID", "UID", "RET", "FLAGS", "COMM", "MIME-TYPE", "FNAME");
+    if (err < 0) {
+        syslog(LOG_ERR, "run_processor: Failed to get list of files");
+        return -1;
+    }
 
-    Processor processor(config, output_file);
+    Storage *storage;
+    if (config.storage_type == STORAGE_TYPE_DATABASE) {
+        storage = new Database(uid, gid, jobid);
+    } else {
+        storage = new SimpleStorage(uid, gid, jobid);
+    }
+    
+    storage->save_job();
+    Processor processor(config, *storage);
 
     for (const auto &file : files) {
         syslog(LOG_INFO, "run_processor: Processing file %s", file.second.c_str());
         err = processor.process_file(file.second);
     }
 
-    fclose(output_file); // TODO: remove this, use a different storage option
+    delete storage;
 
     if (!err) {
         // Update config with new value for last processed timestamp
@@ -107,8 +113,8 @@ int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
     return err;
 }
 
-Processor::Processor(const config_t &config, FILE *output_file)
-    : config(config), output_file(output_file)
+Processor::Processor(const config_t &config, Storage &storage)
+    : config(config), storage(storage)
 {
     magic_cookie = magic_open(MAGIC_MIME_TYPE);
     if (magic_cookie == NULL) {
@@ -128,7 +134,6 @@ Processor::~Processor()
     if (magic_cookie != NULL) {
         magic_close(magic_cookie);
     }
-    // output_file is closed in the main function
 }
 
 int Processor::process_file(const std::string &file_path)
@@ -340,13 +345,9 @@ int Processor::save_event_open(const event_t *e, const fs::path &path)
 
     bool is_accepted = is_accepted_file(path, file_type, mime_type);
 
-    // TODO: remove this, use a different storage option
-    fprintf(output_file, "%s,%ld,%d,%d,%d,%d,%s,%s,%s,%s\n",
-            is_accepted ? "KEEP" : "SKIP",
-            e->ts, e->pid, e->uid, e->ret, e->flags, e->comm,
-            ((int)file_type > 0 && mime_type != NULL) ? mime_type : "?",
-            path.c_str(),
-            link_path.c_str());
+    storage.save_event(e, is_accepted,
+                       ((int)file_type > 0) ? mime_type : "?",
+                       path.c_str(), link_path.c_str());
 
     return 0;
 }

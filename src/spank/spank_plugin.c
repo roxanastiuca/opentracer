@@ -24,6 +24,36 @@ extern const unsigned int plugin_version asm("plugin_version") = SLURM_VERSION_N
 extern const unsigned int spank_plugin_version asm("spank_plugin_version") = 1;
 
 
+static struct spank_option label_option = {
+    .name = (char*)"label",
+    .arginfo = (char*)"<label>",
+    .usage = (char*)"Label for the job",
+    .has_arg = 1,
+    .val = 0,
+    .cb = NULL
+};
+
+
+
+int slurm_spank_init(spank_t sp, int ac, char **av)
+{
+    openlog("opentracer", LOG_PID, LOG_USER);
+    syslog(LOG_INFO, "slurm_spank_init: Started");
+
+    // Add option for label
+    if (spank_option_register(sp, &label_option) != ESPANK_SUCCESS) {
+        syslog(LOG_ERR, "slurm_spank_init: Failed to register option");
+        return -1;
+    }
+
+    syslog(LOG_INFO, "slurm_spank_init: Registered option %s", label_option.name);
+
+    syslog(LOG_INFO, "slurm_spank_init: Finished");
+    closelog();
+    return 0;
+}
+
+
 int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
 {
     openlog("opentracer", LOG_PID, LOG_USER);
@@ -107,6 +137,16 @@ int slurm_spank_job_epilog(spank_t sp, int ac, char **av)
     if (spank_get_item(sp, S_JOB_ID, &jobid) != ESPANK_SUCCESS) {
         syslog(LOG_ERR, "slurm_spank_job_epilog: Failed to get job ID");
         return -1;
+    }
+
+    // Check --label option
+    char *label = NULL;
+    spank_option_getopt(sp, &label_option, &label);
+
+    if (label != NULL) {
+        syslog(LOG_INFO, "slurm_spank_job_epilog: Label is %s", label);
+    } else {
+        syslog(LOG_INFO, "slurm_spank_job_epilog: No label provided");
     }
 
     // Run processor

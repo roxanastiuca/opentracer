@@ -82,17 +82,22 @@ int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
         return -1;
     }
 
-    Database storage(uid, gid, jobid);
-    storage.save_job();
-    storage.start_transaction();
-    Processor processor(config, storage);
+    Storage *storage;
+    if (config.storage_type == STORAGE_TYPE_DATABASE) {
+        storage = new Database(uid, gid, jobid);
+    } else {
+        storage = new SimpleStorage(uid, gid, jobid);
+    }
+    
+    storage->save_job();
+    Processor processor(config, *storage);
 
     for (const auto &file : files) {
         syslog(LOG_INFO, "run_processor: Processing file %s", file.second.c_str());
         err = processor.process_file(file.second);
     }
-    
-    storage.end_transaction();
+
+    delete storage;
 
     if (!err) {
         // Update config with new value for last processed timestamp
@@ -108,8 +113,7 @@ int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
     return err;
 }
 
-template <typename Storage>
-Processor<Storage>::Processor(const config_t &config, Storage &storage)
+Processor::Processor(const config_t &config, Storage &storage)
     : config(config), storage(storage)
 {
     magic_cookie = magic_open(MAGIC_MIME_TYPE);
@@ -125,16 +129,14 @@ Processor<Storage>::Processor(const config_t &config, Storage &storage)
     }
 }
 
-template <typename Storage>
-Processor<Storage>::~Processor()
+Processor::~Processor()
 {
     if (magic_cookie != NULL) {
         magic_close(magic_cookie);
     }
 }
 
-template <typename Storage>
-int Processor<Storage>::process_file(const std::string &file_path)
+int Processor::process_file(const std::string &file_path)
 {
     memory_mapped_file_t mmf;
     if (open_memory_mapped_file(&config, file_path.c_str(), &mmf) < 0) {
@@ -158,8 +160,7 @@ int Processor<Storage>::process_file(const std::string &file_path)
     return 0;
 }
 
-template <typename Storage>
-int Processor<Storage>::process_event(const event_t *e)
+int Processor::process_event(const event_t *e)
 {
     char type[10];
     int err = 0;
@@ -198,8 +199,7 @@ int Processor<Storage>::process_event(const event_t *e)
 ////////////// EVENT HANDLING ///////////////
 // Main logic to handle kernel events
 
-template <typename Storage>
-int Processor<Storage>::process_event_open(const event_t *e)
+int Processor::process_event_open(const event_t *e)
 {
     fs::path abs_path;
 
@@ -244,8 +244,7 @@ int Processor<Storage>::process_event_open(const event_t *e)
     return 0;
 }
 
-template <typename Storage>
-int Processor<Storage>::process_event_chdir(const event_t *e)
+int Processor::process_event_chdir(const event_t *e)
 {
     if (e->ret < 0) {
         return 0;
@@ -268,8 +267,7 @@ int Processor<Storage>::process_event_chdir(const event_t *e)
     return 0;
 }
 
-template <typename Storage>
-int Processor<Storage>::process_event_fchdir(const event_t *e)
+int Processor::process_event_fchdir(const event_t *e)
 {
     if (e->ret < 0) {
         return 0;
@@ -290,8 +288,7 @@ int Processor<Storage>::process_event_fchdir(const event_t *e)
     return 0;
 }
 
-template <typename Storage>
-int Processor<Storage>::process_event_execve(const event_t *e)
+int Processor::process_event_execve(const event_t *e)
 {
     // e->pid = PID of the new process
     // e->ret = PID of the parent process (or <0 if error)
@@ -313,8 +310,7 @@ int Processor<Storage>::process_event_execve(const event_t *e)
 ////////////// OPENED FILE HANDLING ///////////////
 // Logic to save information about opened files: filtering, processing etc.
 
-template <typename Storage>
-int Processor<Storage>::save_event_open(const event_t *e, const fs::path &path)
+int Processor::save_event_open(const event_t *e, const fs::path &path)
 {
     // Skip /proc and /sys
     if (path.string().rfind("/proc", 0) == 0 || path.string().rfind("/sys", 0) == 0) {
@@ -356,8 +352,7 @@ int Processor<Storage>::save_event_open(const event_t *e, const fs::path &path)
     return 0;
 }
 
-template <typename Storage>
-bool Processor<Storage>::is_accepted_file(
+bool Processor::is_accepted_file(
     const fs::path &path, const fs::file_type &file_type, const char *mime_type)
 {
     // Accept unknown file types and not found

@@ -5,6 +5,7 @@
 
 #include "../common/config.h"
 #include "../common/tracer_events.h"
+#include "../storage/storage.h"
 
 // C++ headers
 #include <algorithm>
@@ -16,7 +17,6 @@
 
 namespace fs = std::filesystem;
 
-template<typename Storage>
 class Processor {
 public:
     Processor(const config_t &config, Storage &storage);

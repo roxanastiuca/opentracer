@@ -7,8 +7,9 @@
 
 static const char *YALT_DB_PATH = "/etc/yalt/yalt.db";
 
+
 Database::Database(uid_t uid, gid_t gid, uint32_t jobid)
-    : db(NULL), uid(uid), gid(gid), jobid(jobid)
+    : Storage(uid, gid, jobid), db(NULL)
 {
     int rc = sqlite3_open(YALT_DB_PATH, &db);
     if (rc) {
@@ -16,10 +17,16 @@ Database::Database(uid_t uid, gid_t gid, uint32_t jobid)
         sqlite3_close(db);
         db = NULL;
     }
+    rc = start_transaction();
+    if (rc != 0) {
+        syslog(LOG_ERR, "Can't start transaction\n");
+        db = NULL;
+    }
 }
 
 Database::~Database()
 {
+    end_transaction();
     if (db) {
         sqlite3_close(db);
     }

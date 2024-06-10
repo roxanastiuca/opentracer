@@ -1,14 +1,13 @@
 #ifndef __DATABASE_H__
 #define __DATABASE_H__
 
+#include "storage.h"
+
 #include <sqlite3.h>
 #include <stdint.h>
 #include <sys/types.h>
 
-#include "../common/tracer_events.h"
-
-
-class Database {
+class Database : public Storage {
 public:
     Database(uid_t uid, gid_t gid, uint32_t jobid);
     ~Database();
@@ -30,10 +29,6 @@ private:
 
     sqlite3 *db;
     sqlite3_stmt *insert_event_stmt;
-
-    uid_t uid;
-    gid_t gid;
-    uint32_t jobid;
 };
 
 

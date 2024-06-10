@@ -68,6 +68,15 @@ int load_config(config_t *config)
                 fprintf(stderr, "Error: Invalid value for targ_uid_min: %s\n", value);
                 err = -1;
             }
+        } else if (strcmp(key, "storage_type") == 0) {
+            if (strcmp(value, "simple") == 0) {
+                config->storage_type = STORAGE_TYPE_SIMPLE;
+            } else if (strcmp(value, "database") == 0) {
+                config->storage_type = STORAGE_TYPE_DATABASE;
+            } else {
+                fprintf(stderr, "Error: Invalid value for storage_type: %s\n", value);
+                err = -1;
+            }
         } else {
             fprintf(stderr, "Error: Unknown key in config file: %s\n", key);
             err = -1;

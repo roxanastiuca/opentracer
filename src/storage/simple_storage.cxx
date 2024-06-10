@@ -4,21 +4,26 @@
 
 
 SimpleStorage::SimpleStorage(uid_t uid, gid_t gid, uint32_t jobid)
+    : Storage(uid, gid, jobid)
 {
     time_t current_timestamp = time(NULL);
     char output_file_path[NAME_MAX];
     sprintf(output_file_path, "/etc/yalt/runs/open_%ld.txt", current_timestamp);
 
     fout = fopen(output_file_path, "a");
-
-    fprintf(fout, "UID: %d, GID: %d, JOBID: %d, data:\n", uid, gid, jobid);
-    fprintf(fout, "%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
-            "KEEP", "TS", "PID", "UID", "RET", "FLAGS", "COMM", "MIME-TYPE", "FNAME");
 }
 
 SimpleStorage::~SimpleStorage()
 {
     fclose(fout);
+}
+
+int SimpleStorage::save_job()
+{
+    fprintf(fout, "UID: %d, GID: %d, JOBID: %d, data:\n", uid, gid, jobid);
+    fprintf(fout, "%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+            "KEEP", "TS", "PID", "UID", "RET", "FLAGS", "COMM", "MIME-TYPE", "FNAME");
+    return 0;
 }
 
 int SimpleStorage::save_event(

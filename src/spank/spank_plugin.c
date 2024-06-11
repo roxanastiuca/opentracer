@@ -143,14 +143,8 @@ int slurm_spank_job_epilog(spank_t sp, int ac, char **av)
     char *label = NULL;
     spank_option_getopt(sp, &label_option, &label);
 
-    if (label != NULL) {
-        syslog(LOG_INFO, "slurm_spank_job_epilog: Label is %s", label);
-    } else {
-        syslog(LOG_INFO, "slurm_spank_job_epilog: No label provided");
-    }
-
     // Run processor
-    if (run_processor(uid, gid, jobid) != 0) {
+    if (run_processor(uid, gid, jobid, label) != 0) {
         syslog(LOG_ERR, "slurm_spank_job_epilog: Failed to run processor");
         return -1;
     }

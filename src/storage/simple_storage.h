@@ -8,7 +8,7 @@
 
 class SimpleStorage : public Storage {
 public:
-    SimpleStorage(uid_t uid, gid_t gid, uint32_t jobid);
+    SimpleStorage(uid_t uid, gid_t gid, uint32_t jobid, const char* label);
     ~SimpleStorage();
 
     int save_job();

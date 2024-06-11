@@ -42,7 +42,7 @@ private:
     std::unordered_map<int, std::vector<fs::path>> pid_to_fds_paths;
 };
 
-int run_processor(uid_t uid, gid_t gid, uint32_t jobid);
+int run_processor(uid_t uid, gid_t gid, uint32_t jobid, const char* label);
 
 
 #endif /* __PROCESSOR_H__ */

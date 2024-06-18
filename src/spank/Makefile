@@ -7,7 +7,7 @@ USER_C = ../ebpf/opentracer.c \
 		 spank_plugin.c \
 		 ../processor/processor.cxx
 COMMON_H = ../ebpf/opentracer.h
-LIBS = -lbpf -lelf -lz -pthread -lmagic -lsqlite3
+LIBS = -lbpf -lelf -lz -pthread -lmagic -lsqlite3 -lrpm
 
 all: ebpf libopentracer.so
 

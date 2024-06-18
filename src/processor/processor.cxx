@@ -1,6 +1,10 @@
 #include "processor.h"
 
 #include <dirent.h>
+#include <rpm/rpmlib.h>
+#include <rpm/rpmts.h>
+#include <rpm/rpmdb.h>
+#include <rpm/header.h>
 #include <string.h>
 #include <sys/fcntl.h>
 #include <sys/mman.h>
@@ -127,6 +131,9 @@ Processor::Processor(const config_t &config, Storage &storage)
         magic_close(magic_cookie);
         exit(1);
     }
+
+    // Initialize RPM library
+    rpmReadConfigFiles(NULL, NULL);
 }
 
 Processor::~Processor()
@@ -134,6 +141,9 @@ Processor::~Processor()
     if (magic_cookie != NULL) {
         magic_close(magic_cookie);
     }
+
+    // Finalize RPM library
+    rpmFreeRpmrc();
 }
 
 int Processor::process_file(const std::string &file_path)
@@ -344,6 +354,26 @@ int Processor::save_event_open(const event_t *e, const fs::path &path)
     }
 
     bool is_accepted = is_accepted_file(path, file_type, mime_type);
+
+    // Check if it's RPM package
+    if (file_type == fs::file_type::regular && is_accepted) {
+        rpmts ts = rpmtsCreate();
+        rpmdbMatchIterator mi = rpmtsInitIterator(ts, RPMTAG_NAME, path.c_str(), 0);
+        Header h = rpmdbNextIterator(mi);
+
+        if (h != NULL) {
+            const char *name = headerGetString(h, RPMTAG_NAME);
+            const char *version = headerGetString(h, RPMTAG_VERSION);
+            const char *release = headerGetString(h, RPMTAG_RELEASE);
+            const char *arch = headerGetString(h, RPMTAG_ARCH);
+
+            syslog(LOG_INFO, "RPM: %s-%s-%s.%s\n", name, version, release, arch);
+            return 0;
+        }
+
+        rpmdbFreeIterator(mi);
+        rpmtsFree(ts);
+    }
 
     storage.save_event(e, is_accepted,
                        ((int)file_type > 0) ? mime_type : "?",

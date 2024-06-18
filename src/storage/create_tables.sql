@@ -25,3 +25,6 @@ CREATE TABLE EVENTS (
     link_path VARCHAR(255) DEFAULT NULL,
     FOREIGN KEY (jobid) REFERENCES JOBS(jobid)
 );
+
+-- Add column 'label' to JOBS table (text)
+ALTER TABLE JOBS ADD COLUMN label TEXT;

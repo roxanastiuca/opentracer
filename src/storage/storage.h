@@ -5,8 +5,8 @@
 
 class Storage {
 public:
-    Storage(uid_t uid, gid_t gid, uint32_t jobid)
-        : uid(uid), gid(gid), jobid(jobid) {}
+    Storage(uid_t uid, gid_t gid, uint32_t jobid, const char* label)
+        : uid(uid), gid(gid), jobid(jobid), label(label) {}
     virtual ~Storage() {}
 
     virtual int save_job() = 0;
@@ -21,6 +21,7 @@ protected:
     uid_t uid;
     gid_t gid;
     uint32_t jobid;
+    const char* label;
 };
 
 

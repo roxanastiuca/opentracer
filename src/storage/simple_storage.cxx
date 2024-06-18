@@ -3,8 +3,8 @@
 #include <time.h>
 
 
-SimpleStorage::SimpleStorage(uid_t uid, gid_t gid, uint32_t jobid)
-    : Storage(uid, gid, jobid)
+SimpleStorage::SimpleStorage(uid_t uid, gid_t gid, uint32_t jobid, const char* label)
+    : Storage(uid, gid, jobid, label)
 {
     time_t current_timestamp = time(NULL);
     char output_file_path[NAME_MAX];
@@ -20,7 +20,10 @@ SimpleStorage::~SimpleStorage()
 
 int SimpleStorage::save_job()
 {
-    fprintf(fout, "UID: %d, GID: %d, JOBID: %d, data:\n", uid, gid, jobid);
+    fprintf(fout, "UID: %d, GID: %d, JOBID: %d", uid, gid, jobid);
+    if (label != NULL)
+        fprintf(fout, ", LABEL: %s", label);
+    fprintf(fout, "\n");
     fprintf(fout, "%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
             "KEEP", "TS", "PID", "UID", "RET", "FLAGS", "COMM", "MIME-TYPE", "FNAME");
     return 0;

@@ -8,8 +8,8 @@
 static const char *YALT_DB_PATH = "/etc/yalt/yalt.db";
 
 
-Database::Database(uid_t uid, gid_t gid, uint32_t jobid)
-    : Storage(uid, gid, jobid), db(NULL)
+Database::Database(uid_t uid, gid_t gid, uint32_t jobid, const char* label)
+    : Storage(uid, gid, jobid, label), db(NULL)
 {
     int rc = sqlite3_open(YALT_DB_PATH, &db);
     if (rc) {
@@ -97,9 +97,15 @@ int Database::save_job()
 
     char *err_msg = NULL;
     char sql[256];
-    sprintf(sql, "INSERT INTO jobs (jobid, uid, gid) VALUES (%d, %d, %d);",
-            jobid, uid, gid);
 
+    if (label) {
+        sprintf(sql, "INSERT INTO jobs (jobid, uid, gid, label) VALUES (%d, %d, %d, '%s');",
+                jobid, uid, gid, label);
+    } else {
+        sprintf(sql, "INSERT INTO jobs (jobid, uid, gid) VALUES (%d, %d, %d);",
+                jobid, uid, gid);
+    }
+    
     int rc = sqlite3_exec(db, sql, NULL, 0, &err_msg);
     if (rc != SQLITE_OK) {
         syslog(LOG_ERR, "SQL error: %s\n", err_msg);

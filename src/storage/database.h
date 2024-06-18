@@ -9,7 +9,7 @@
 
 class Database : public Storage {
 public:
-    Database(uid_t uid, gid_t gid, uint32_t jobid);
+    Database(uid_t uid, gid_t gid, uint32_t jobid, const char* label);
     ~Database();
 
     int start_transaction();

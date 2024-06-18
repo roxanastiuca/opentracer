@@ -58,7 +58,7 @@ int get_list_of_files(
 }
 
 
-int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
+int run_processor(uid_t uid, gid_t gid, uint32_t jobid, const char* label)
 {
     time_t current_timestamp = time(NULL);
     time_t last_processed_timestamp;
@@ -84,9 +84,9 @@ int run_processor(uid_t uid, gid_t gid, uint32_t jobid)
 
     Storage *storage;
     if (config.storage_type == STORAGE_TYPE_DATABASE) {
-        storage = new Database(uid, gid, jobid);
+        storage = new Database(uid, gid, jobid, label);
     } else {
-        storage = new SimpleStorage(uid, gid, jobid);
+        storage = new SimpleStorage(uid, gid, jobid, label);
     }
     
     storage->save_job();

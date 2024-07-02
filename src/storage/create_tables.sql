@@ -28,3 +28,15 @@ CREATE TABLE EVENTS (
 
 -- Add column 'label' to JOBS table (text)
 ALTER TABLE JOBS ADD COLUMN label TEXT;
+
+-- Create table binaries with columns: jobid, pid, comm, comm_path, nm, strings
+CREATE TABLE BINARIES (
+    jobid INTEGER UNSIGNED,
+    pid INTEGER,
+    comm VARCHAR(16),
+    comm_path TEXT,
+    nm TEXT,
+    strings TEXT,
+    PRIMARY KEY (jobid, pid, comm),
+    FOREIGN KEY (jobid) REFERENCES JOBS(jobid)
+);

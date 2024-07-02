@@ -22,6 +22,11 @@ public:
         const char *mime_type,
         const char *file_path,
         const char *link_path);
+    int save_exec(
+        const event_t *event,
+        const char *comm_path,
+        const char *nm,
+        const char *strings);
 
 private:
     int execute(const char *sql);

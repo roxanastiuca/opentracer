@@ -301,8 +301,36 @@ int Processor::process_event_execve(const event_t *e)
     } else {
         pid_to_cwd[e->pid] = "UNK";
     }
+
+    save_event_exec(e, pid_to_cwd[e->pid]);
     
     // syslog(LOG_DEBUG, "EXECVE: %d -> %s\n", e->pid, pid_to_cwd[e->pid].c_str());
+
+    return 0;
+}
+
+////////////// EXECVE EVENT HANDLING ///////////////
+// Logic to save information about executable
+int Processor::save_event_exec(const event_t *e, const fs::path &path)
+{
+    if (path.string() == "UNK") {
+        storage.save_exec(e, "", "", "");
+        return 0;
+    }
+
+    fs::path comm_path;
+    if (e->comm[0] == '/') {
+        comm_path = fs::path(e->comm);
+    } else {
+        comm_path = path / fs::path(e->comm);
+    }
+
+    // Get symbols from file at comm_path
+    
+
+    // Get strings from file at comm_path
+
+    storage.save_exec(e, comm_path.c_str(), "", "");
 
     return 0;
 }

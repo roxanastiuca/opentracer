@@ -156,3 +156,13 @@ int Database::save_event(
 
     return 0;
 }
+
+int Database::save_exec(
+    const event_t *event,
+    const char *comm_path,
+    const char *nm,
+    const char *strings)
+{
+    syslog(LOG_INFO, "EXEC: %s\n", comm_path);
+    return 0;
+}

@@ -45,3 +45,12 @@ int SimpleStorage::save_event(
 
     return 0;
 }
+
+int SimpleStorage::save_exec(
+    const event_t *event,
+    const char *comm_path,
+    const char *nm,
+    const char *strings)
+{
+    return 0;
+}

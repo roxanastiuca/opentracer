@@ -5,18 +5,19 @@
 #include <sys/mman.h>
 #include <time.h>
 #include <unistd.h>
+#include <syslog.h>
 
 int open_memory_mapped_file(const config_t *config, const char *file_path, memory_mapped_file_t *mmf)
 {
     int fd = open(file_path, O_RDWR);
     if (fd < 0) {
-        fprintf(stderr, "Failed to open file %s\n", file_path);
+        syslog(LOG_ERR, "Failed to open file %s\n", file_path);
         return -1;
     }
 
     void *addr = mmap(NULL, config->events_file_size_limit, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (addr == MAP_FAILED) {
-        fprintf(stderr, "Failed to mmap file %s\n", file_path);
+        syslog(LOG_ERR, "Failed to mmap file %s\n", file_path);
         return -1;
     }
 
@@ -44,25 +45,25 @@ int create_memory_mapped_file(const config_t *config, char *file_path, memory_ma
     strftime(ts, sizeof(ts), "%y-%m-%d-%H-%M-%S", tm);
 
     if (file_path == NULL) {
-        fprintf(stderr, "File path is NULL in create_memory_mapped_file\n");
+        syslog(LOG_ERR, "File path is NULL in create_memory_mapped_file\n");
         return -1;
     }
     snprintf(file_path, MAX_FILE_NAME, "%s/events_%s", config->events_save_path, ts);
 
     int fd = open(file_path, O_CREAT | O_RDWR, 0644);
     if (fd < 0) {
-        fprintf(stderr, "Failed to open file %s\n", file_path);
+        syslog(LOG_ERR, "Failed to open file %s\n", file_path);
         return -1;
     }
 
     if (ftruncate(fd, config->events_file_size_limit) < 0) {
-        fprintf(stderr, "Failed to set memory-mapped file size %s\n", file_path);
+        syslog(LOG_ERR, "Failed to set memory-mapped file size %s\n", file_path);
         return -1;
     }
 
     void *addr = mmap(NULL, config->events_file_size_limit, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (addr == MAP_FAILED) {
-        fprintf(stderr, "Failed to mmap file %s\n", file_path);
+        syslog(LOG_ERR, "Failed to mmap file %s\n", file_path);
         return -1;
     }
 
@@ -89,12 +90,12 @@ int close_memory_mapped_file(const config_t *config, const char *file_path, memo
 
     int fd = open(file_path, O_RDWR);
     if (fd < 0) {
-        fprintf(stderr, "Failed to open file %s\n", file_path);
+        syslog(LOG_ERR, "Failed to open file %s\n", file_path);
         return -1;
     }
 
     if (ftruncate(fd, size) < 0) {
-        fprintf(stderr, "Failed to reset file size %s\n", file_path);
+        syslog(LOG_ERR, "Failed to reset file size %s\n", file_path);
         return -1;
     }
 

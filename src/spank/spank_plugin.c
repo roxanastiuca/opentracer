@@ -37,18 +37,13 @@ static struct spank_option label_option = {
 
 int slurm_spank_init(spank_t sp, int ac, char **av)
 {
-    openlog("opentracer", LOG_PID, LOG_USER);
-    syslog(LOG_INFO, "slurm_spank_init: Started");
-
     // Add option for label
     if (spank_option_register(sp, &label_option) != ESPANK_SUCCESS) {
+        openlog("opentracer", LOG_PID, LOG_USER);
         syslog(LOG_ERR, "slurm_spank_init: Failed to register option");
         return -1;
     }
 
-    syslog(LOG_INFO, "slurm_spank_init: Registered option %s", label_option.name);
-
-    syslog(LOG_INFO, "slurm_spank_init: Finished");
     closelog();
     return 0;
 }

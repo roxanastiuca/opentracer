@@ -65,19 +65,21 @@ int handle_event(void *ctx, void *data, size_t data_sz)
         snprintf(environ_path, sizeof(environ_path), "/proc/%d/environ", event->pid);
         FILE *f = fopen(environ_path, "r");
         if (f != NULL) {
-            char buffer[4096];
-            size_t length = fread(buffer, 1, sizeof(buffer), f);
-            if (length != 0) {
-                buffer[length] = '\0';
+            char *buffer = NULL;
+            size_t buffer_size = 0;
 
-                char *ptr = buffer;
-                while (ptr < buffer + length) {
-                    if (strncmp(ptr, "PATH=", 5) == 0) {
-                        strcpy(execve_event.fname, ptr + 5);
+            while (getline(&buffer, &buffer_size, f) != -1) {
+                char *curr = buffer;
+                while (curr < buffer + buffer_size) {
+                    if (strncmp(curr, "PATH=", 5) == 0) {
+                        strncpy(execve_event.fname, curr, FNAME_LEN);
+                        break;
                     }
-                    ptr += strlen(ptr) + 1;
+                    curr += strlen(curr) + 1;
                 }
             }
+
+            free(buffer);
             fclose(f);
         }
 

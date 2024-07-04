@@ -302,35 +302,92 @@ int Processor::process_event_execve(const event_t *e)
         pid_to_cwd[e->pid] = "UNK";
     }
 
-    save_event_exec(e, pid_to_cwd[e->pid]);
-    
-    // syslog(LOG_DEBUG, "EXECVE: %d -> %s\n", e->pid, pid_to_cwd[e->pid].c_str());
+    save_event_exec(e);
 
     return 0;
 }
 
 ////////////// EXECVE EVENT HANDLING ///////////////
 // Logic to save information about executable
-int Processor::save_event_exec(const event_t *e, const fs::path &path)
+std::string get_nm_output(const char *comm_path)
 {
-    if (path.string() == "UNK") {
+    // Run nm comm_path
+    std::string nm_output;
+    char cmd[512];
+    sprintf(cmd, "nm --format=posix --debug-syms %s | awk '{print $1}'", comm_path);
+    FILE *nm_pipe = popen(cmd, "r");
+    if (nm_pipe == NULL) {
+        return nm_output;
+    }
+
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), nm_pipe) != NULL) {
+        nm_output += buffer;
+    }
+
+    pclose(nm_pipe);
+
+    return nm_output;
+}
+
+std::string get_strings_output(const char *comm_path)
+{
+    // Run strings comm_path
+    std::string strings_output;
+    FILE *strings_pipe = popen(("strings " + std::string(comm_path)).c_str(), "r");
+    if (strings_pipe == NULL) {
+        return strings_output;
+    }
+
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), strings_pipe) != NULL) {
+        strings_output += buffer;
+    }
+
+    pclose(strings_pipe);
+
+    return strings_output;
+}
+
+int Processor::save_event_exec(const event_t *e)
+{
+    fs::path comm_path;
+    bool found = false;
+
+    if (strncmp(e->fname, "PATH=", 5) == 0) {
+        // Search through directories in path
+        std::string path = e->fname + 5;
+        std::string token;
+        std::istringstream token_stream(path);
+        while (std::getline(token_stream, token, ':')) {
+            comm_path = fs::path(token) / fs::path(e->comm);
+            if (fs::exists(comm_path)) {
+                found = true;
+                break;
+            }
+        }
+    }
+
+    if (!found) {
+        // Search in current directory
+        comm_path = pid_to_cwd[e->pid] / fs::path(e->comm);
+        if (fs::exists(comm_path)) {
+            found = true;
+        }
+    }
+
+    if (!found) {
         storage.save_exec(e, "", "", "");
         return 0;
     }
 
-    fs::path comm_path;
-    if (e->comm[0] == '/') {
-        comm_path = fs::path(e->comm);
-    } else {
-        comm_path = path / fs::path(e->comm);
-    }
-
     // Get symbols from file at comm_path
-    
+    std::string nm = get_nm_output(comm_path.c_str());
 
     // Get strings from file at comm_path
+    std::string strings = get_strings_output(comm_path.c_str());
 
-    storage.save_exec(e, comm_path.c_str(), "", "");
+    storage.save_exec(e, comm_path.c_str(), nm.c_str(), strings.c_str());
 
     return 0;
 }

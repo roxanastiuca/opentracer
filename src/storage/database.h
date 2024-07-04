@@ -34,6 +34,7 @@ private:
 
     sqlite3 *db;
     sqlite3_stmt *insert_event_stmt;
+    sqlite3_stmt *insert_exec_stmt;
 };
 
 

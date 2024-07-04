@@ -86,6 +86,13 @@ int Database::prepare_statements()
         return -1;
     }
 
+    const char *sql2 = "INSERT INTO binaries (jobid, pid, comm, comm_path, nm, strings) "
+                       "VALUES (?, ?, ?, ?, ?, ?);";
+    if (sqlite3_prepare_v2(db, sql2, strlen(sql2), &insert_exec_stmt, NULL) != SQLITE_OK) {
+        syslog(LOG_ERR, "SQL error: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+
     return 0;
 }
 
@@ -163,6 +170,31 @@ int Database::save_exec(
     const char *nm,
     const char *strings)
 {
-    syslog(LOG_INFO, "EXEC: %s\n", comm_path);
+    if (!db) {
+        return -1;
+    }
+
+    if (sqlite3_reset(insert_exec_stmt) != SQLITE_OK) {
+        syslog(LOG_ERR, "SQL error: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+
+    if (sqlite3_clear_bindings(insert_exec_stmt) != SQLITE_OK) {
+        syslog(LOG_ERR, "SQL error: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+
+    sqlite3_bind_int(insert_exec_stmt, 1, jobid);
+    sqlite3_bind_int(insert_exec_stmt, 2, event->pid);
+    sqlite3_bind_text(insert_exec_stmt, 3, event->comm, -1, SQLITE_STATIC);
+    sqlite3_bind_text(insert_exec_stmt, 4, comm_path, -1, SQLITE_STATIC);
+    sqlite3_bind_text(insert_exec_stmt, 5, nm, -1, SQLITE_STATIC);
+    sqlite3_bind_text(insert_exec_stmt, 6, strings, -1, SQLITE_STATIC);
+
+    if (sqlite3_step(insert_exec_stmt) != SQLITE_DONE) {
+        syslog(LOG_ERR, "SQL error: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+
     return 0;
 }

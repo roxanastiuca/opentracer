@@ -31,7 +31,7 @@ private:
     int process_event_fchdir(const event_t *event);
 
     int save_event_open(const event_t *event, const fs::path &path);
-    int save_event_exec(const event_t *event, const fs::path &path);
+    int save_event_exec(const event_t *event);
     bool is_accepted_file(
         const fs::path &path, const fs::file_type &type, const char *mime_type);
 

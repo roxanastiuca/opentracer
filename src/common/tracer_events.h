@@ -12,6 +12,7 @@
 #include <limits.h>
 
 #define TASK_COMM_LEN 16
+#define FNAME_LEN 512
 
 // avoid including vmlinux.h, use hardcoded values
 #define AT_FDCWD                -100    /* Special value used to indicate openat should use the current working directory. */
@@ -35,7 +36,7 @@ typedef struct {
     int flags;          // flags for open() and openat()
     int dfd;            // dfd argument for openat(), fd argument for fchdir()
     char comm[TASK_COMM_LEN];   // command name
-    char fname[NAME_MAX];       // file name
+    char fname[FNAME_LEN];      // file name, or PATH for execve()
 } event_t;
 
 #endif /* __TRACER_EVENTS_H */

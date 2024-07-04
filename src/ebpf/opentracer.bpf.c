@@ -163,8 +163,9 @@ int tracepoint__syscalls__sys_exit_open(struct trace_event_raw_sys_exit* ctx)
 
 struct execve_args {
     const char *fname;
+    int dfd;
     // const char *const *argv; // unused
-    // const char *const *envp; // unused
+    // const char *const *envp;
 };
 
 struct {
@@ -183,7 +184,9 @@ int tracepoint__syscalls__sys_enter_execve(struct trace_event_raw_sys_enter* ctx
 
     if (trace_allowed(tgid, pid)) {
         struct execve_args args = {};
+        args.dfd = AT_FDCWD;
         args.fname = (const char *)ctx->args[0];
+        // args.envp = (const char *const *)ctx->args[2];
         bpf_map_update_elem(&execve_start, &pid, &args, 0);
     }
 
@@ -199,8 +202,9 @@ int tracepoint__syscalls__sys_enter_execveat(struct trace_event_raw_sys_enter* c
 
     if (trace_allowed(tgid, pid)) {
         struct execve_args args = {};
+        args.dfd = (int)ctx->args[0];
         args.fname = (const char *)ctx->args[1];
-        // ignore dfd
+        // args.envp = (const char *const *)ctx->args[3];
         bpf_map_update_elem(&execve_start, &pid, &args, 0);
     }
 
@@ -233,6 +237,7 @@ int common__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
     event->event_type = (char)EVENT_TYPE_EXECVE;
     event->pid = bpf_get_current_pid_tgid() >> 32;
     event->uid = bpf_get_current_uid_gid();
+    event->dfd = ap->dfd;
     bpf_get_current_comm(&event->comm, sizeof(event->comm));
     bpf_probe_read_user_str(&event->fname, sizeof(event->fname), ap->fname);
 
@@ -241,6 +246,25 @@ int common__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
     struct task_struct *parent;
     bpf_probe_read(&parent, sizeof(parent), &task->real_parent);
     bpf_probe_read(&event->ret, sizeof(event->ret), &parent->pid);
+
+    /* get env_start */
+    // struct mm_struct *mm;
+    // bpf_probe_read(&mm, sizeof(mm), &task->mm);
+    // long unsigned env_start, env_end;
+    // bpf_probe_read(&env_start, sizeof(env_start), &mm->env_start);
+    // bpf_probe_read(&env_end, sizeof(env_end), &mm->env_end);
+
+    // int l = 0;
+
+    // char **envp = (char **) env_start;
+    // while (envp < (char **) env_end) {
+    //     char env[100];
+    //     char *var;
+    //     bpf_probe_read(&var, sizeof(var), &envp[0]);
+    //     // bpf_probe_read_user_str(&env, sizeof(env), var);
+    //     // bpf_probe_read_str(&env, sizeof(env), &var);
+    //     envp++;
+    // }
 
     /* emit event */
     bpf_ringbuf_submit(event, 0);

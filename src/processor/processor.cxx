@@ -1,6 +1,7 @@
 #include "processor.h"
 
 #include <dirent.h>
+#include <pwd.h>
 #include <string.h>
 #include <sys/fcntl.h>
 #include <sys/mman.h>
@@ -302,6 +303,8 @@ int Processor::process_event_execve(const event_t *e)
         pid_to_cwd[e->pid] = "UNK";
     }
 
+    syslog(LOG_INFO, "EXECVE: COMM=%s, FNAME=%s\n", e->comm, e->fname);
+
     save_event_exec(e);
 
     return 0;
@@ -351,6 +354,9 @@ std::string get_strings_output(const char *comm_path)
 
 int Processor::save_event_exec(const event_t *e)
 {
+    struct passwd *pw = getpwuid(e->uid);
+    syslog(LOG_INFO, "User: %s, Home: %s", pw->pw_name, pw->pw_dir);
+
     fs::path comm_path;
     bool found = false;
 
@@ -364,6 +370,16 @@ int Processor::save_event_exec(const event_t *e)
             if (fs::exists(comm_path)) {
                 found = true;
                 break;
+            } else if (comm_path.c_str()[0] == '~') {
+                if (comm_path.string().size() <= 2) {
+                    comm_path = fs::path(pw->pw_dir);
+                } else {
+                    comm_path = fs::path(pw->pw_dir) / fs::path(comm_path.string().substr(2));
+                }
+                if (fs::exists(comm_path)) {
+                    found = true;
+                    break;
+                }
             }
         }
     }

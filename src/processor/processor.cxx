@@ -317,7 +317,7 @@ std::string get_nm_output(const char *comm_path)
     // Run nm comm_path
     std::string nm_output;
     char cmd[512];
-    sprintf(cmd, "nm --format=posix --debug-syms %s | awk '{print $1}'", comm_path);
+    sprintf(cmd, "nm --format=posix --demangle %s | awk '{print $1}' | sed 's/\"/\"\"/g; s/,/\\\\,/g; s/'\\''/\\\\'\\''/g' | paste -sd,", comm_path);
     FILE *nm_pipe = popen(cmd, "r");
     if (nm_pipe == NULL) {
         return nm_output;
@@ -337,7 +337,9 @@ std::string get_strings_output(const char *comm_path)
 {
     // Run strings comm_path
     std::string strings_output;
-    FILE *strings_pipe = popen(("strings " + std::string(comm_path)).c_str(), "r");
+    char cmd[512];
+    sprintf(cmd, "strings -n 10 %s | sed 's/\"/\"\"/g; s/,/\\\\,/g; s/'\\''/\\\\'\\''/g' | paste -sd,", comm_path);
+    FILE *strings_pipe = popen(cmd, "r");
     if (strings_pipe == NULL) {
         return strings_output;
     }

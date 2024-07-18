@@ -32,7 +32,7 @@ typedef struct {
     char event_type;    // kernel event type
     pid_t pid;          // process ID
     uid_t uid;          // user ID
-    int ret;            // return value
+    long ret;           // return value
     int flags;          // flags for open() and openat()
     int dfd;            // dfd argument for openat(), fd argument for fchdir()
     char comm[TASK_COMM_LEN];   // command name

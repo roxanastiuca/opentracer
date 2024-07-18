@@ -52,6 +52,9 @@ int Database::end_transaction()
     if (sqlite3_finalize(insert_event_stmt) != SQLITE_OK) {
         return -1;
     }
+    if (sqlite3_finalize(insert_exec_stmt) != SQLITE_OK) {
+        return -1;
+    }
 
     return 0;
 }

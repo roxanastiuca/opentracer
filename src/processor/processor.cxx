@@ -1,6 +1,7 @@
 #include "processor.h"
 
 #include <dirent.h>
+#include <pwd.h>
 #include <string.h>
 #include <sys/fcntl.h>
 #include <sys/mman.h>
@@ -301,8 +302,110 @@ int Processor::process_event_execve(const event_t *e)
     } else {
         pid_to_cwd[e->pid] = "UNK";
     }
-    
-    // syslog(LOG_DEBUG, "EXECVE: %d -> %s\n", e->pid, pid_to_cwd[e->pid].c_str());
+
+    syslog(LOG_INFO, "EXECVE: COMM=%s, FNAME=%s\n", e->comm, e->fname);
+
+    save_event_exec(e);
+
+    return 0;
+}
+
+////////////// EXECVE EVENT HANDLING ///////////////
+// Logic to save information about executable
+std::string get_nm_output(const char *comm_path)
+{
+    // Run nm comm_path
+    std::string nm_output;
+    char cmd[512];
+    sprintf(cmd, "nm --format=posix --demangle %s | awk '{print $1}' | sed 's/\"/\"\"/g; s/,/\\\\,/g; s/'\\''/\\\\'\\''/g' | paste -sd,", comm_path);
+    FILE *nm_pipe = popen(cmd, "r");
+    if (nm_pipe == NULL) {
+        return nm_output;
+    }
+
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), nm_pipe) != NULL) {
+        nm_output += buffer;
+    }
+
+    pclose(nm_pipe);
+
+    return nm_output;
+}
+
+std::string get_strings_output(const char *comm_path)
+{
+    // Run strings comm_path
+    std::string strings_output;
+    char cmd[512];
+    sprintf(cmd, "strings -n 10 %s | sed 's/\"/\"\"/g; s/,/\\\\,/g; s/'\\''/\\\\'\\''/g' | paste -sd,", comm_path);
+    FILE *strings_pipe = popen(cmd, "r");
+    if (strings_pipe == NULL) {
+        return strings_output;
+    }
+
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), strings_pipe) != NULL) {
+        strings_output += buffer;
+    }
+
+    pclose(strings_pipe);
+
+    return strings_output;
+}
+
+int Processor::save_event_exec(const event_t *e)
+{
+    struct passwd *pw = getpwuid(e->uid);
+    syslog(LOG_INFO, "User: %s, Home: %s", pw->pw_name, pw->pw_dir);
+
+    fs::path comm_path;
+    bool found = false;
+
+    if (strncmp(e->fname, "PATH=", 5) == 0) {
+        // Search through directories in path
+        std::string path = e->fname + 5;
+        std::string token;
+        std::istringstream token_stream(path);
+        while (std::getline(token_stream, token, ':')) {
+            comm_path = fs::path(token) / fs::path(e->comm);
+            if (fs::exists(comm_path)) {
+                found = true;
+                break;
+            } else if (comm_path.c_str()[0] == '~') {
+                if (comm_path.string().size() <= 2) {
+                    comm_path = fs::path(pw->pw_dir);
+                } else {
+                    comm_path = fs::path(pw->pw_dir) / fs::path(comm_path.string().substr(2));
+                }
+                if (fs::exists(comm_path)) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!found) {
+        // Search in current directory
+        comm_path = pid_to_cwd[e->pid] / fs::path(e->comm);
+        if (fs::exists(comm_path)) {
+            found = true;
+        }
+    }
+
+    if (!found) {
+        storage.save_exec(e, "", "", "");
+        return 0;
+    }
+
+    // Get symbols from file at comm_path
+    std::string nm = get_nm_output(comm_path.c_str());
+
+    // Get strings from file at comm_path
+    std::string strings = get_strings_output(comm_path.c_str());
+
+    storage.save_exec(e, comm_path.c_str(), nm.c_str(), strings.c_str());
 
     return 0;
 }

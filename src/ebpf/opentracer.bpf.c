@@ -69,8 +69,17 @@ struct {
     __type(value, struct open_args);
 } open_start SEC(".maps");
 
+struct sys_enter_openat_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long dfd;
+    const char *filename;
+    long flags;
+    long mode;
+};
+
 SEC("tracepoint/syscalls/sys_enter_openat")
-int tracepoint__syscalls__sys_enter_openat(struct trace_event_raw_sys_enter* ctx)
+int tracepoint__syscalls__sys_enter_openat(struct sys_enter_openat_args* ctx)
 {
     u64 id = bpf_get_current_pid_tgid();
     u32 tgid = id >> 32;
@@ -78,17 +87,25 @@ int tracepoint__syscalls__sys_enter_openat(struct trace_event_raw_sys_enter* ctx
 
     if (trace_allowed(tgid, pid)) {
         struct open_args args = {};
-        args.dfd = (int)ctx->args[0];
-        args.fname = (const char *)ctx->args[1];
-        args.flags = (int)ctx->args[2];
+        args.dfd = (int)ctx->dfd;
+        args.fname = (const char *)ctx->filename;
+        args.flags = (int)ctx->flags;
         bpf_map_update_elem(&open_start, &pid, &args, 0);
     }
 
     return 0;
 }
 
+struct sys_enter_open_args {
+    unsigned long long unused;
+    long syscall_nr;
+    const char *filename;
+    long flags;
+    long mode;
+};
+
 SEC("tracepoint/syscalls/sys_enter_open")
-int tracepoint__syscalls__sys_enter_open(struct trace_event_raw_sys_enter* ctx)
+int tracepoint__syscalls__sys_enter_open(struct sys_enter_open_args* ctx)
 {
     u64 id = bpf_get_current_pid_tgid();
     u32 tgid = id >> 32;
@@ -96,8 +113,8 @@ int tracepoint__syscalls__sys_enter_open(struct trace_event_raw_sys_enter* ctx)
 
     if (trace_allowed(tgid, pid)) {
         struct open_args args = {};
-        args.fname = (const char *)ctx->args[0];
-        args.flags = (int)ctx->args[1];
+        args.fname = (const char *)ctx->filename;
+        args.flags = (int)ctx->flags;
         args.dfd = AT_FDCWD;
         bpf_map_update_elem(&open_start, &pid, &args, 0);
     }
@@ -105,8 +122,14 @@ int tracepoint__syscalls__sys_enter_open(struct trace_event_raw_sys_enter* ctx)
     return 0;
 }
 
+struct sys_exit_open_common_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long ret;
+};
+
 static __always_inline
-int common__sys_exit_open(struct trace_event_raw_sys_exit* ctx)
+int common__sys_exit_open(struct sys_exit_open_common_args* ctx)
 {
     event_t *event;
     struct open_args *ap;
@@ -132,7 +155,7 @@ int common__sys_exit_open(struct trace_event_raw_sys_exit* ctx)
     bpf_probe_read_user_str(&event->fname, sizeof(event->fname), ap->fname);
     event->flags = ap->flags;
     event->dfd = ap->dfd;
-    bpf_probe_read(&event->ret, sizeof(event->ret), &ctx->ret);
+    event->ret = ctx->ret;
 
     /* Unused: */
     // bpf_get_stack(ctx, &stack, sizeof(stack), BPF_F_USER_STACK);
@@ -147,24 +170,26 @@ int common__sys_exit_open(struct trace_event_raw_sys_exit* ctx)
 }
 
 SEC("tracepoint/syscalls/sys_exit_openat")
-int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
+int tracepoint__syscalls__sys_exit_openat(struct sys_exit_open_common_args* ctx)
 {
     return common__sys_exit_open(ctx);
 }
 
 SEC("tracepoint/syscalls/sys_exit_open")
-int tracepoint__syscalls__sys_exit_open(struct trace_event_raw_sys_exit* ctx)
+int tracepoint__syscalls__sys_exit_open(struct sys_exit_open_common_args* ctx)
 {
     return common__sys_exit_open(ctx);
 }
+
 
 
 ///////////////////// EXECVE SYSCALL //////////////////////////
 
 struct execve_args {
     const char *fname;
+    int dfd;
     // const char *const *argv; // unused
-    // const char *const *envp; // unused
+    // const char *const *envp;
 };
 
 struct {
@@ -174,8 +199,17 @@ struct {
     __type(value, struct execve_args);
 } execve_start SEC(".maps");
 
+
+struct sys_enter_execve_args {
+    unsigned long long unused;
+    long syscall_nr;
+    const char *filename;
+    const char *const *argv;
+    const char *const *envp;
+};
+
 SEC("tracepoint/syscalls/sys_enter_execve")
-int tracepoint__syscalls__sys_enter_execve(struct trace_event_raw_sys_enter* ctx)
+int tracepoint__syscalls__sys_enter_execve(struct sys_enter_execve_args* ctx)
 {
     u64 id = bpf_get_current_pid_tgid();
     u32 tgid = id >> 32;
@@ -183,15 +217,27 @@ int tracepoint__syscalls__sys_enter_execve(struct trace_event_raw_sys_enter* ctx
 
     if (trace_allowed(tgid, pid)) {
         struct execve_args args = {};
-        args.fname = (const char *)ctx->args[0];
+        args.dfd = AT_FDCWD;
+        args.fname = (const char *)ctx->filename;
+        // args.envp = (const char *const *)ctx->args[2];
         bpf_map_update_elem(&execve_start, &pid, &args, 0);
     }
 
     return 0;
 }
+
+struct sys_enter_execveat_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long dfd;
+    const char *filename;
+    const char *const *argv;
+    const char *const *envp;
+    long flags;
+};
 
 SEC("tracepoint/syscalls/sys_enter_execveat")
-int tracepoint__syscalls__sys_enter_execveat(struct trace_event_raw_sys_enter* ctx)
+int tracepoint__syscalls__sys_enter_execveat(struct sys_enter_execveat_args* ctx)
 {
     u64 id = bpf_get_current_pid_tgid();
     u32 tgid = id >> 32;
@@ -199,24 +245,29 @@ int tracepoint__syscalls__sys_enter_execveat(struct trace_event_raw_sys_enter* c
 
     if (trace_allowed(tgid, pid)) {
         struct execve_args args = {};
-        args.fname = (const char *)ctx->args[1];
-        // ignore dfd
+        args.dfd = (int)ctx->dfd;
+        args.fname = (const char *)ctx->filename;
+        // args.envp = (const char *const *)ctx->args[3];
         bpf_map_update_elem(&execve_start, &pid, &args, 0);
     }
 
     return 0;
 }
 
+struct sys_exit_execve_common_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long ret;
+};
+
 static __always_inline
-int common__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
+int common__sys_exit_execve(struct sys_exit_execve_common_args* ctx)
 {
     event_t *event;
     struct execve_args *ap;
     u32 pid = bpf_get_current_pid_tgid();
 
-    int ret;
-    bpf_probe_read(&ret, sizeof(ret), &ctx->ret);
-    if (ret < 0) {
+    if (ctx->ret < 0) {
         return 0; /* failed syscall, don't record event */
     }
 
@@ -233,6 +284,7 @@ int common__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
     event->event_type = (char)EVENT_TYPE_EXECVE;
     event->pid = bpf_get_current_pid_tgid() >> 32;
     event->uid = bpf_get_current_uid_gid();
+    event->dfd = ap->dfd;
     bpf_get_current_comm(&event->comm, sizeof(event->comm));
     bpf_probe_read_user_str(&event->fname, sizeof(event->fname), ap->fname);
 
@@ -240,7 +292,27 @@ int common__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
     struct task_struct *task = (struct task_struct *)bpf_get_current_task();
     struct task_struct *parent;
     bpf_probe_read(&parent, sizeof(parent), &task->real_parent);
-    bpf_probe_read(&event->ret, sizeof(event->ret), &parent->pid);
+    event->ret = 0;
+    bpf_probe_read(&event->ret, sizeof(parent->pid), &parent->pid);
+
+    /* get env_start */
+    // struct mm_struct *mm;
+    // bpf_probe_read(&mm, sizeof(mm), &task->mm);
+    // long unsigned env_start, env_end;
+    // bpf_probe_read(&env_start, sizeof(env_start), &mm->env_start);
+    // bpf_probe_read(&env_end, sizeof(env_end), &mm->env_end);
+
+    // int l = 0;
+
+    // char **envp = (char **) env_start;
+    // while (envp < (char **) env_end) {
+    //     char env[100];
+    //     char *var;
+    //     bpf_probe_read(&var, sizeof(var), &envp[0]);
+    //     // bpf_probe_read_user_str(&env, sizeof(env), var);
+    //     // bpf_probe_read_str(&env, sizeof(env), &var);
+    //     envp++;
+    // }
 
     /* emit event */
     bpf_ringbuf_submit(event, 0);
@@ -249,13 +321,13 @@ int common__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
 }
 
 SEC("tracepoint/syscalls/sys_exit_execve")
-int tracepoint__syscalls__sys_exit_execve(struct trace_event_raw_sys_exit* ctx)
+int tracepoint__syscalls__sys_exit_execve(struct sys_exit_execve_common_args* ctx)
 {
     return common__sys_exit_execve(ctx);
 }
 
 SEC("tracepoint/syscalls/sys_exit_execveat")
-int tracepoint__syscalls__sys_exit_execveat(struct trace_event_raw_sys_exit* ctx)
+int tracepoint__syscalls__sys_exit_execveat(struct sys_exit_execve_common_args* ctx)
 {
     return common__sys_exit_execve(ctx);
 }
@@ -274,8 +346,15 @@ struct {
     __type(value, struct chdir_args);
 } chdir_start SEC(".maps");
 
+
+struct sys_enter_chdir_args {
+    unsigned long long unused;
+    long syscall_nr;
+    const char *filename;
+};
+
 SEC("tracepoint/syscalls/sys_enter_chdir")
-int tracepoint__syscalls__sys_enter_chdir(struct trace_event_raw_sys_enter* ctx)
+int tracepoint__syscalls__sys_enter_chdir(struct sys_enter_chdir_args* ctx)
 {
     u64 id = bpf_get_current_pid_tgid();
     u32 tgid = id >> 32;
@@ -283,25 +362,27 @@ int tracepoint__syscalls__sys_enter_chdir(struct trace_event_raw_sys_enter* ctx)
 
     if (trace_allowed(tgid, pid)) {
         struct chdir_args args = {};
-        const char* tmp;
-        bpf_probe_read(&tmp, sizeof(tmp), &ctx->args[0]);
-        args.path = tmp;
+        args.path = ctx->filename;
         bpf_map_update_elem(&chdir_start, &pid, &args, 0);
     }
 
     return 0;
 }
 
+struct sys_exit_chdir_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long ret;
+};
+
 SEC("tracepoint/syscalls/sys_exit_chdir")
-int tracepoint__syscalls__sys_exit_chdir(struct trace_event_raw_sys_exit* ctx)
+int tracepoint__syscalls__sys_exit_chdir(struct sys_exit_chdir_args* ctx)
 {
     event_t *event;
     struct chdir_args *ap;
     u32 pid = bpf_get_current_pid_tgid();
 
-    int ret;
-    bpf_probe_read(&ret, sizeof(ret), &ctx->ret);
-    if (ret < 0) {
+    if (ctx->ret < 0) {
         return 0; /* failed syscall, don't record event */
     }
 
@@ -320,7 +401,7 @@ int tracepoint__syscalls__sys_exit_chdir(struct trace_event_raw_sys_exit* ctx)
     event->uid = bpf_get_current_uid_gid();
     bpf_get_current_comm(&event->comm, sizeof(event->comm));
     bpf_probe_read_user_str(&event->fname, sizeof(event->fname), ap->path);
-    event->ret = ret;
+    event->ret = ctx->ret;
 
     /* emit event */
     bpf_ringbuf_submit(event, 0);
@@ -341,8 +422,15 @@ struct {
     __type(value, struct fchdir_args);
 } fchdir_start SEC(".maps");
 
+
+struct sys_enter_fchdir_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long fd;
+};
+
 SEC("tracepoint/syscalls/sys_enter_fchdir")
-int tracepoint__syscalls__sys_enter_fchdir(struct trace_event_raw_sys_enter* ctx)
+int tracepoint__syscalls__sys_enter_fchdir(struct sys_enter_fchdir_args* ctx)
 {
     u64 id = bpf_get_current_pid_tgid();
     u32 tgid = id >> 32;
@@ -350,25 +438,28 @@ int tracepoint__syscalls__sys_enter_fchdir(struct trace_event_raw_sys_enter* ctx
 
     if (trace_allowed(tgid, pid)) {
         struct fchdir_args args = {};
-        int tmp;
-        bpf_probe_read(&tmp, sizeof(tmp), &ctx->args[0]);
-        args.fd = tmp;
+        args.fd = ctx->fd;
         bpf_map_update_elem(&fchdir_start, &pid, &args, 0);
     }
 
     return 0;
 }
 
+
+struct sys_exit_fchdir_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long ret;
+};
+
 SEC("tracepoint/syscalls/sys_exit_fchdir")
-int tracepoint__syscalls__sys_exit_fchdir(struct trace_event_raw_sys_exit* ctx)
+int tracepoint__syscalls__sys_exit_fchdir(struct sys_exit_fchdir_args* ctx)
 {
     event_t *event;
     struct fchdir_args *ap;
     u32 pid = bpf_get_current_pid_tgid();
 
-    int ret;
-    bpf_probe_read(&ret, sizeof(ret), &ctx->ret);
-    if (ret < 0) {
+    if (ctx->ret < 0) {
         return 0; /* failed syscall, don't record event */
     }
 
@@ -387,7 +478,7 @@ int tracepoint__syscalls__sys_exit_fchdir(struct trace_event_raw_sys_exit* ctx)
     event->uid = bpf_get_current_uid_gid();
     event->dfd = ap->fd;
     bpf_get_current_comm(&event->comm, sizeof(event->comm));
-    event->ret = ret;
+    event->ret = ctx->ret;
 
     /* emit event */
     bpf_ringbuf_submit(event, 0);

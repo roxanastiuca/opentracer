@@ -52,12 +52,48 @@ int handle_event(void *ctx, void *data, size_t data_sz)
     time_t ts;
     time(&ts);
 
-    // Overwrite ts in event_t with current timestamp:
-    // (without actually changing data, to avoid multiple memcpy-s)
-    memcpy((char*)mmf.data + *(mmf.write_offset), &ts, sizeof(time_t));
-    memcpy((char*)mmf.data + *(mmf.write_offset) + sizeof(time_t),
-           (char*)data + sizeof(time_t), data_sz - sizeof(time_t));
-    *(mmf.write_offset) += data_sz;
+    const event_t *const event = (event_t *)data;
+    if (event->event_type == EVENT_TYPE_EXECVE) {
+        event_t execve_event;
+        memcpy(&execve_event, event, sizeof(event_t));
+        execve_event.ts = ts;
+
+        syslog(LOG_INFO, "handle_event: Execve event: %s", event->comm);
+
+        // Get environ of event->pid
+        char environ_path[256];
+        snprintf(environ_path, sizeof(environ_path), "/proc/%d/environ", event->pid);
+        FILE *f = fopen(environ_path, "r");
+        if (f != NULL) {
+            char *buffer = NULL;
+            size_t buffer_size = 0;
+
+            while (getline(&buffer, &buffer_size, f) != -1) {
+                char *curr = buffer;
+                while (curr < buffer + buffer_size) {
+                    if (strncmp(curr, "PATH=", 5) == 0) {
+                        strncpy(execve_event.fname, curr, FNAME_LEN);
+                        break;
+                    }
+                    curr += strlen(curr) + 1;
+                }
+            }
+
+            free(buffer);
+            fclose(f);
+        }
+
+        memcpy((char*)mmf.data + *(mmf.write_offset), &execve_event, sizeof(event_t));
+        *(mmf.write_offset) += sizeof(event_t);
+    } else {
+        // Overwrite ts in event_t with current timestamp:
+        // (without actually changing data, to avoid multiple memcpy-s)
+        memcpy((char*)mmf.data + *(mmf.write_offset), &ts, sizeof(time_t));
+        memcpy((char*)mmf.data + *(mmf.write_offset) + sizeof(time_t),
+            (char*)data + sizeof(time_t), data_sz - sizeof(time_t));
+        *(mmf.write_offset) += data_sz;
+    }
+
 
     return 0;
 }

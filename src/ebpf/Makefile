@@ -10,6 +10,7 @@ all: $(BPF_OBJ) $(USER_SKEL)
 $(BPF_OBJ): %.o: $(BPF_C) vmlinux.h  $(COMMON_H)
 	clang \
 	    -target bpf \
+		-D__TARGET_ARCH_x86 \
 		-I/usr/include/$(shell uname -m)-linux-gnu \
 		-g \
 	    -O2 -o $@ -c $<

@@ -16,6 +16,11 @@ public:
         const char *mime_type,
         const char *file_path,
         const char *link_path) = 0;
+    virtual int save_exec(
+        const event_t *event,
+        const char *comm_path,
+        const char *nm,
+        const char *strings) = 0;
 
 protected:
     uid_t uid;

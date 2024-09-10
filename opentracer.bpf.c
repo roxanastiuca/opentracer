@@ -16,7 +16,7 @@
 
 const volatile pid_t targ_pid = 0;
 const volatile pid_t targ_tgid = 0;
-const volatile uid_t targ_uid = 501; /* TODO: set to 0, left to 501/1000 for testing */
+const volatile uid_t targ_uid = 60004; /* TODO: set to 0, left to 501/1000 for testing */
 
 struct {
     __uint(type, BPF_MAP_TYPE_HASH);
@@ -59,33 +59,238 @@ bool trace_allowed(u32 tgid, u32 pid)
 // SEC("tp/syscalls/sys_enter_open")
 // int tracepoint__syscalls__sys_enter_open(struct trace_event_raw_sys_enter* ctx)
 
+// struct sys_enter_openat_args {
+//     unsigned long long unused;
+//     long syscall_nr;
+//     long dfd;
+//     const char *filename;
+//     long flags;
+//     long mode;
+// };
+
+// SEC("tracepoint/syscalls/sys_enter_openat")
+// int tracepoint__syscalls__sys_enter_openat(struct sys_enter_openat_args* ctx)
+// {
+//     u64 id = bpf_get_current_pid_tgid();
+//     u32 tgid = id >> 32;
+//     u32 pid = id;
+
+//     if (trace_allowed(tgid, pid)) {
+//         struct args_t args = {};
+//         args.fname = (const char *)ctx->filename;
+//         args.flags = (int)ctx->flags;
+
+//         bpf_map_update_elem(&start, &pid, &args, 0);
+//     }
+
+//     return 0;
+// }
+
+
+// struct sys_exit_open_common_args {
+//     unsigned long long unused;
+//     long syscall_nr;
+//     long ret;
+// };
+
+// SEC("tracepoint/syscalls/sys_exit_openat")
+// int tracepoint__syscalls__sys_exit_openat(struct sys_exit_open_common_args* ctx)
+// {
+//     struct event *event;
+//     struct args_t *ap;
+//     uintptr_t stack[3];
+//     u32 pid = bpf_get_current_pid_tgid();
+
+//     ap = bpf_map_lookup_elem(&start, &pid);
+//     if (!ap) {
+//         // bpf_printk("Openat - Exit for missed entry\n");
+//         return 0; /* missed entry */
+//     }
+
+//     event = bpf_ringbuf_reserve(&events, sizeof(*event), 0);
+//     if (!event) {
+//         // bpf_printk("Openat - Exit for failed ringbuf reserve\n");
+//         return 0; /* TODO: handle? */
+//     }
+
+//     event->pid = bpf_get_current_pid_tgid() >> 32;
+//     event->uid = bpf_get_current_uid_gid();
+//     bpf_get_current_comm(&event->comm, sizeof(event->comm));
+//     bpf_probe_read_user_str(&event->fname, sizeof(event->fname), ap->fname);
+//     event->flags = ap->flags;
+//     event->ret = ctx->ret;
+
+//     if (event->ret > 0 && event->fname[0] != '/') {
+//         struct path path;
+
+//         {
+//             // current->files->fdt->fd[fd]->f.path
+//             int fd;
+//             struct task_struct* t;
+//             struct files_struct* f;
+//             struct fdtable* fdt;
+//             struct file** fdd;
+//             struct file* file;
+
+//             fd = event->ret;
+//             t = (struct task_struct*)bpf_get_current_task(); // current
+
+//             bpf_probe_read(&f, sizeof(f), (void*)&t->files); // current->files
+//             bpf_probe_read(&fdt, sizeof(fdt), (void*)&f->fdt); // current->files->fdt
+//             bpf_probe_read(&fdd, sizeof(fdd), (void*)&fdt->fd);
+//             bpf_probe_read(&file, sizeof(file), (void*)&fdd[fd]);
+//             bpf_probe_read(&path, sizeof(path), (const void*)&file->f_path);
+//         }
+
+//         // path.dentry->d_name.name
+//         struct vfsmount *curr_vfsmount_ptr = path.mnt;
+//         struct dentry *curr_dentry_ptr = path.dentry;
+        
+//         struct vfsmount curr_vfsmount;
+//         bpf_probe_read(&curr_vfsmount, sizeof(struct vfsmount), curr_vfsmount_ptr);
+
+//         for (int i = 0; i < PATH_MAX_COUNT; i++) {
+//             struct dentry curr_dentry;
+//             bpf_probe_read(&curr_dentry, sizeof(struct dentry), curr_dentry_ptr);
+
+//             if (curr_dentry_ptr == curr_vfsmount.mnt_root) {
+//                 struct mount *curr_mount_ptr =
+//                     (struct mount *)(((u8 *)curr_vfsmount_ptr) -
+//                         offsetof(struct mount, mnt));
+//                 // struct mount curr_mount;
+//                 // bpf_probe_read(&curr_mount, sizeof(struct mount), curr_mount_ptr);
+                
+//                 // struct dentry *mount_point_dentry_ptr = curr_mount.mnt_mountpoint;
+//                 struct dentry *mount_point_dentry_ptr;
+//                 bpf_probe_read(&mount_point_dentry_ptr, sizeof(struct dentry *),
+//                                 &curr_mount_ptr->mnt_mountpoint);
+
+//                 if (curr_dentry_ptr == mount_point_dentry_ptr) {
+//                     break;
+//                 }
+
+//                 curr_dentry_ptr = mount_point_dentry_ptr;
+
+//                 // struct mount *parent_mount_ptr = curr_mount.mnt_parent;
+//                 struct mount *parent_mount_ptr;
+//                 bpf_probe_read(&parent_mount_ptr, sizeof(struct mount *),
+//                                 &curr_mount_ptr->mnt_parent);
+
+//                 struct vfsmount *parent_vfsmount_ptr =
+//                     (struct vfsmount *)(((u8 *)parent_mount_ptr) -
+//                                         offsetof(struct mount, mnt));
+                
+//                 if (curr_vfsmount_ptr == parent_vfsmount_ptr) {
+//                     break;
+//                 }
+
+//                 curr_vfsmount_ptr = parent_vfsmount_ptr;
+//                 bpf_probe_read(&curr_vfsmount, sizeof(struct vfsmount), curr_vfsmount_ptr);
+//             } else {
+//                 curr_dentry_ptr = curr_dentry.d_parent;
+
+//                 bpf_probe_read_str(event->path[i], PATH_MAX_LEN, curr_dentry.d_name.name);
+//                 (event->path_len)++;
+//             }
+//         }
+//     }
+
+//     bpf_get_stack(ctx, &stack, sizeof(stack), BPF_F_USER_STACK);
+//     event->callers[0] = stack[1];
+//     event->callers[1] = stack[2];
+
+//     /* emit event */
+//     bpf_ringbuf_submit(event, 0);
+
+//     return 0;
+// }
+
+// char LICENSE[] SEC("license") = "Dual BSD/GPL";
+
+
+///////////////////// OPEN SYSCALL //////////////////////////
+
+struct open_args {
+    const char *fname;
+    int dfd;
+    int flags;
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, 10240);
+    __type(key, u32);
+    __type(value, struct open_args);
+} open_start SEC(".maps");
+
+struct sys_enter_openat_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long dfd;
+    const char *filename;
+    long flags;
+    long mode;
+};
+
 SEC("tracepoint/syscalls/sys_enter_openat")
-int tracepoint__syscalls__sys_enter_openat(struct trace_event_raw_sys_enter* ctx)
+int tracepoint__syscalls__sys_enter_openat(struct sys_enter_openat_args* ctx)
 {
     u64 id = bpf_get_current_pid_tgid();
     u32 tgid = id >> 32;
     u32 pid = id;
 
     if (trace_allowed(tgid, pid)) {
-        struct args_t args = {};
-        args.fname = (const char *)ctx->args[1];
-        args.flags = (int)ctx->args[2];
-
-        bpf_map_update_elem(&start, &pid, &args, 0);
+        struct open_args args = {};
+        args.dfd = (int)ctx->dfd;
+        args.fname = (const char *)ctx->filename;
+        args.flags = (int)ctx->flags;
+        bpf_map_update_elem(&open_start, &pid, &args, 0);
     }
 
     return 0;
 }
 
-SEC("tracepoint/syscalls/sys_exit_openat")
-int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
+struct sys_enter_open_args {
+    unsigned long long unused;
+    long syscall_nr;
+    const char *filename;
+    long flags;
+    long mode;
+};
+
+SEC("tracepoint/syscalls/sys_enter_open")
+int tracepoint__syscalls__sys_enter_open(struct sys_enter_open_args* ctx)
 {
-    struct event *event;
-    struct args_t *ap;
-    uintptr_t stack[3];
+    u64 id = bpf_get_current_pid_tgid();
+    u32 tgid = id >> 32;
+    u32 pid = id;
+
+    if (trace_allowed(tgid, pid)) {
+        struct open_args args = {};
+        args.fname = (const char *)ctx->filename;
+        args.flags = (int)ctx->flags;
+        args.dfd = AT_FDCWD;
+        bpf_map_update_elem(&open_start, &pid, &args, 0);
+    }
+
+    return 0;
+}
+
+struct sys_exit_open_common_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long ret;
+};
+
+static __always_inline
+int common__sys_exit_open(struct sys_exit_open_common_args* ctx)
+{
+    event_t *event;
+    struct open_args *ap;
+    // uintptr_t stack[3];
     u32 pid = bpf_get_current_pid_tgid();
 
-    ap = bpf_map_lookup_elem(&start, &pid);
+    ap = bpf_map_lookup_elem(&open_start, &pid);
     if (!ap) {
         // bpf_printk("Openat - Exit for missed entry\n");
         return 0; /* missed entry */
@@ -97,96 +302,344 @@ int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
         return 0; /* TODO: handle? */
     }
 
+    event->event_type = (char)EVENT_TYPE_OPEN;
     event->pid = bpf_get_current_pid_tgid() >> 32;
     event->uid = bpf_get_current_uid_gid();
     bpf_get_current_comm(&event->comm, sizeof(event->comm));
     bpf_probe_read_user_str(&event->fname, sizeof(event->fname), ap->fname);
     event->flags = ap->flags;
+    event->dfd = ap->dfd;
     event->ret = ctx->ret;
 
-    if (event->ret > 0 && event->fname[0] != '/') {
-        struct path path;
+    /* Unused: */
+    // bpf_get_stack(ctx, &stack, sizeof(stack), BPF_F_USER_STACK);
+    // event->callers[0] = stack[1];
+    // event->callers[1] = stack[2];
 
-        {
-            // current->files->fdt->fd[fd]->f.path
-            int fd;
-            struct task_struct* t;
-            struct files_struct* f;
-            struct fdtable* fdt;
-            struct file** fdd;
-            struct file* file;
+    /* emit event */
+    events_count++;
+    bpf_ringbuf_submit(event, 0);
 
-            fd = event->ret;
-            t = (struct task_struct*)bpf_get_current_task(); // current
+    return 0;
+}
 
-            bpf_probe_read(&f, sizeof(f), (void*)&t->files); // current->files
-            bpf_probe_read(&fdt, sizeof(fdt), (void*)&f->fdt); // current->files->fdt
-            bpf_probe_read(&fdd, sizeof(fdd), (void*)&fdt->fd);
-            bpf_probe_read(&file, sizeof(file), (void*)&fdd[fd]);
-            bpf_probe_read(&path, sizeof(path), (const void*)&file->f_path);
-        }
+SEC("tracepoint/syscalls/sys_exit_openat")
+int tracepoint__syscalls__sys_exit_openat(struct sys_exit_open_common_args* ctx)
+{
+    return common__sys_exit_open(ctx);
+}
 
-        // path.dentry->d_name.name
-        struct vfsmount *curr_vfsmount_ptr = path.mnt;
-        struct dentry *curr_dentry_ptr = path.dentry;
-        
-        struct vfsmount curr_vfsmount;
-        bpf_probe_read(&curr_vfsmount, sizeof(struct vfsmount), curr_vfsmount_ptr);
+SEC("tracepoint/syscalls/sys_exit_open")
+int tracepoint__syscalls__sys_exit_open(struct sys_exit_open_common_args* ctx)
+{
+    return common__sys_exit_open(ctx);
+}
 
-        for (int i = 0; i < PATH_MAX_COUNT; i++) {
-            struct dentry curr_dentry;
-            bpf_probe_read(&curr_dentry, sizeof(struct dentry), curr_dentry_ptr);
 
-            if (curr_dentry_ptr == curr_vfsmount.mnt_root) {
-                struct mount *curr_mount_ptr =
-                    (struct mount *)(((u8 *)curr_vfsmount_ptr) -
-                        offsetof(struct mount, mnt));
-                // struct mount curr_mount;
-                // bpf_probe_read(&curr_mount, sizeof(struct mount), curr_mount_ptr);
-                
-                // struct dentry *mount_point_dentry_ptr = curr_mount.mnt_mountpoint;
-                struct dentry *mount_point_dentry_ptr;
-                bpf_probe_read(&mount_point_dentry_ptr, sizeof(struct dentry *),
-                                &curr_mount_ptr->mnt_mountpoint);
 
-                if (curr_dentry_ptr == mount_point_dentry_ptr) {
-                    break;
-                }
+///////////////////// EXECVE SYSCALL //////////////////////////
 
-                curr_dentry_ptr = mount_point_dentry_ptr;
+struct execve_args {
+    const char *fname;
+    int dfd;
+    // const char *const *argv; // unused
+    // const char *const *envp;
+};
 
-                // struct mount *parent_mount_ptr = curr_mount.mnt_parent;
-                struct mount *parent_mount_ptr;
-                bpf_probe_read(&parent_mount_ptr, sizeof(struct mount *),
-                                &curr_mount_ptr->mnt_parent);
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, 10240);
+    __type(key, u32);
+    __type(value, struct execve_args);
+} execve_start SEC(".maps");
 
-                struct vfsmount *parent_vfsmount_ptr =
-                    (struct vfsmount *)(((u8 *)parent_mount_ptr) -
-                                        offsetof(struct mount, mnt));
-                
-                if (curr_vfsmount_ptr == parent_vfsmount_ptr) {
-                    break;
-                }
 
-                curr_vfsmount_ptr = parent_vfsmount_ptr;
-                bpf_probe_read(&curr_vfsmount, sizeof(struct vfsmount), curr_vfsmount_ptr);
-            } else {
-                curr_dentry_ptr = curr_dentry.d_parent;
+struct sys_enter_execve_args {
+    unsigned long long unused;
+    long syscall_nr;
+    const char *filename;
+    const char *const *argv;
+    const char *const *envp;
+};
 
-                bpf_probe_read_str(event->path[i], PATH_MAX_LEN, curr_dentry.d_name.name);
-                (event->path_len)++;
-            }
-        }
+SEC("tracepoint/syscalls/sys_enter_execve")
+int tracepoint__syscalls__sys_enter_execve(struct sys_enter_execve_args* ctx)
+{
+    u64 id = bpf_get_current_pid_tgid();
+    u32 tgid = id >> 32;
+    u32 pid = id;
+
+    if (trace_allowed(tgid, pid)) {
+        struct execve_args args = {};
+        args.dfd = AT_FDCWD;
+        args.fname = (const char *)ctx->filename;
+        // args.envp = (const char *const *)ctx->args[2];
+        bpf_map_update_elem(&execve_start, &pid, &args, 0);
     }
 
-    bpf_get_stack(ctx, &stack, sizeof(stack), BPF_F_USER_STACK);
-    event->callers[0] = stack[1];
-    event->callers[1] = stack[2];
+    return 0;
+}
+
+struct sys_enter_execveat_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long dfd;
+    const char *filename;
+    const char *const *argv;
+    const char *const *envp;
+    long flags;
+};
+
+SEC("tracepoint/syscalls/sys_enter_execveat")
+int tracepoint__syscalls__sys_enter_execveat(struct sys_enter_execveat_args* ctx)
+{
+    u64 id = bpf_get_current_pid_tgid();
+    u32 tgid = id >> 32;
+    u32 pid = id;
+
+    if (trace_allowed(tgid, pid)) {
+        struct execve_args args = {};
+        args.dfd = (int)ctx->dfd;
+        args.fname = (const char *)ctx->filename;
+        // args.envp = (const char *const *)ctx->args[3];
+        bpf_map_update_elem(&execve_start, &pid, &args, 0);
+    }
+
+    return 0;
+}
+
+struct sys_exit_execve_common_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long ret;
+};
+
+static __always_inline
+int common__sys_exit_execve(struct sys_exit_execve_common_args* ctx)
+{
+    event_t *event;
+    struct execve_args *ap;
+    u32 pid = bpf_get_current_pid_tgid();
+
+    if (ctx->ret < 0) {
+        return 0; /* failed syscall, don't record event */
+    }
+
+    ap = bpf_map_lookup_elem(&execve_start, &pid);
+    if (!ap) {
+        return 0; /* missed entry */
+    }
+
+    event = bpf_ringbuf_reserve(&events, sizeof(*event), 0);
+    if (!event) {
+        return 0; /* allocation failed */
+    }
+
+    event->event_type = (char)EVENT_TYPE_EXECVE;
+    event->pid = bpf_get_current_pid_tgid() >> 32;
+    event->uid = bpf_get_current_uid_gid();
+    event->dfd = ap->dfd;
+    bpf_get_current_comm(&event->comm, sizeof(event->comm));
+    bpf_probe_read_user_str(&event->fname, sizeof(event->fname), ap->fname);
+
+    /* execve doesn't have a return value, use field for ppid (pid_t == int) */
+    struct task_struct *task = (struct task_struct *)bpf_get_current_task();
+    struct task_struct *parent;
+    bpf_probe_read(&parent, sizeof(parent), &task->real_parent);
+    event->ret = 0;
+    bpf_probe_read(&event->ret, sizeof(parent->pid), &parent->pid);
+
+    /* get env_start */
+    // struct mm_struct *mm;
+    // bpf_probe_read(&mm, sizeof(mm), &task->mm);
+    // long unsigned env_start, env_end;
+    // bpf_probe_read(&env_start, sizeof(env_start), &mm->env_start);
+    // bpf_probe_read(&env_end, sizeof(env_end), &mm->env_end);
+
+    // int l = 0;
+
+    // char **envp = (char **) env_start;
+    // while (envp < (char **) env_end) {
+    //     char env[100];
+    //     char *var;
+    //     bpf_probe_read(&var, sizeof(var), &envp[0]);
+    //     // bpf_probe_read_user_str(&env, sizeof(env), var);
+    //     // bpf_probe_read_str(&env, sizeof(env), &var);
+    //     envp++;
+    // }
 
     /* emit event */
     bpf_ringbuf_submit(event, 0);
 
     return 0;
 }
+
+SEC("tracepoint/syscalls/sys_exit_execve")
+int tracepoint__syscalls__sys_exit_execve(struct sys_exit_execve_common_args* ctx)
+{
+    return common__sys_exit_execve(ctx);
+}
+
+SEC("tracepoint/syscalls/sys_exit_execveat")
+int tracepoint__syscalls__sys_exit_execveat(struct sys_exit_execve_common_args* ctx)
+{
+    return common__sys_exit_execve(ctx);
+}
+
+
+///////////////////// CHDIR SYSCALL //////////////////////////
+
+struct chdir_args {
+    const char *path;
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, 10240);
+    __type(key, u32);
+    __type(value, struct chdir_args);
+} chdir_start SEC(".maps");
+
+
+struct sys_enter_chdir_args {
+    unsigned long long unused;
+    long syscall_nr;
+    const char *filename;
+};
+
+SEC("tracepoint/syscalls/sys_enter_chdir")
+int tracepoint__syscalls__sys_enter_chdir(struct sys_enter_chdir_args* ctx)
+{
+    u64 id = bpf_get_current_pid_tgid();
+    u32 tgid = id >> 32;
+    u32 pid = id;
+
+    if (trace_allowed(tgid, pid)) {
+        struct chdir_args args = {};
+        args.path = ctx->filename;
+        bpf_map_update_elem(&chdir_start, &pid, &args, 0);
+    }
+
+    return 0;
+}
+
+struct sys_exit_chdir_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long ret;
+};
+
+SEC("tracepoint/syscalls/sys_exit_chdir")
+int tracepoint__syscalls__sys_exit_chdir(struct sys_exit_chdir_args* ctx)
+{
+    event_t *event;
+    struct chdir_args *ap;
+    u32 pid = bpf_get_current_pid_tgid();
+
+    if (ctx->ret < 0) {
+        return 0; /* failed syscall, don't record event */
+    }
+
+    ap = bpf_map_lookup_elem(&chdir_start, &pid);
+    if (!ap) {
+        return 0; /* missed entry */
+    }
+
+    event = bpf_ringbuf_reserve(&events, sizeof(*event), 0);
+    if (!event) {
+        return 0; /* allocation failed */
+    }
+
+    event->event_type = (char)EVENT_TYPE_CHDIR;
+    event->pid = bpf_get_current_pid_tgid() >> 32;
+    event->uid = bpf_get_current_uid_gid();
+    bpf_get_current_comm(&event->comm, sizeof(event->comm));
+    bpf_probe_read_user_str(&event->fname, sizeof(event->fname), ap->path);
+    event->ret = ctx->ret;
+
+    /* emit event */
+    bpf_ringbuf_submit(event, 0);
+
+    return 0;
+}
+
+///////////////////// FCHDIR SYSCALL //////////////////////////
+
+struct fchdir_args {
+    int fd;
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, 10240);
+    __type(key, u32);
+    __type(value, struct fchdir_args);
+} fchdir_start SEC(".maps");
+
+
+struct sys_enter_fchdir_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long fd;
+};
+
+SEC("tracepoint/syscalls/sys_enter_fchdir")
+int tracepoint__syscalls__sys_enter_fchdir(struct sys_enter_fchdir_args* ctx)
+{
+    u64 id = bpf_get_current_pid_tgid();
+    u32 tgid = id >> 32;
+    u32 pid = id;
+
+    if (trace_allowed(tgid, pid)) {
+        struct fchdir_args args = {};
+        args.fd = ctx->fd;
+        bpf_map_update_elem(&fchdir_start, &pid, &args, 0);
+    }
+
+    return 0;
+}
+
+
+struct sys_exit_fchdir_args {
+    unsigned long long unused;
+    long syscall_nr;
+    long ret;
+};
+
+SEC("tracepoint/syscalls/sys_exit_fchdir")
+int tracepoint__syscalls__sys_exit_fchdir(struct sys_exit_fchdir_args* ctx)
+{
+    event_t *event;
+    struct fchdir_args *ap;
+    u32 pid = bpf_get_current_pid_tgid();
+
+    if (ctx->ret < 0) {
+        return 0; /* failed syscall, don't record event */
+    }
+
+    ap = bpf_map_lookup_elem(&fchdir_start, &pid);
+    if (!ap) {
+        return 0; /* missed entry */
+    }
+
+    event = bpf_ringbuf_reserve(&events, sizeof(*event), 0);
+    if (!event) {
+        return 0; /* allocation failed */
+    }
+
+    event->event_type = (char)EVENT_TYPE_FCHDIR;
+    event->pid = bpf_get_current_pid_tgid() >> 32;
+    event->uid = bpf_get_current_uid_gid();
+    event->dfd = ap->fd;
+    bpf_get_current_comm(&event->comm, sizeof(event->comm));
+    event->ret = ctx->ret;
+
+    /* emit event */
+    bpf_ringbuf_submit(event, 0);
+
+    return 0;
+}
+
+
 
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
